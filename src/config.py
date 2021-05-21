@@ -10,3 +10,7 @@ class Config:
     """
 
     NUMBER_DATAPOINTS = 200
+    MIN_ULS = 1e-3
+    MAX_ULS = 1e4
+    MIN_UGS = 1e-3
+    MAX_UGS = 1e4
