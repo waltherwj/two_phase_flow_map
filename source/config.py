@@ -1,5 +1,6 @@
 """
-Configuration file. Contains classes that are used for configuration
+Configuration file. Contains the class that is 
+used for configuration and the configuration variables
 """
 
 
