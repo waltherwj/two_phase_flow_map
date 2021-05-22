@@ -4,9 +4,11 @@ bubbly flow
 """
 
 
-def taylor_bubble_exceeds(diameter, liq_dens, gas_dens, surface_tension):
+def taylor_bubble_exceeds(constants):
     """check if taylor bubble velocity exceeds bubble velocity
     which is necessary for bubbly flow to exist
         Taitel et al. 1980
     """
+    liq_dens = constants.liq_dens
+
     rhs = 19 * (liq_dens - gas_dens)
