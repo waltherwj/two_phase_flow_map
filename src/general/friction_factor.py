@@ -10,7 +10,28 @@ https://github.com/IMEConsultants/colebrook/blob/master/colebrook/colebrook.py
 import numpy as np
 
 
-def sjFriction(reynolds, roughness):
+def laminar_and_fang(reynolds, roughness):
+    """combine fang 2011 model for transition and turbulent with the laminar model"""
+
+    friction = np.empty_like(reynolds)
+    reynolds = np.array(reynolds)
+
+    turbulent = reynolds >= 2300
+    # laminar
+    friction[~turbulent] = laminar(reynolds[~turbulent])
+
+    # turbulent
+    friction[turbulent] = fang(reynolds[turbulent], roughness)
+
+    return friction
+
+
+def laminar(reynolds):
+    """calculate laminar friction factor"""
+    return reynolds / 64
+
+
+def turb_swamee(reynolds, roughness):
     """
     Model: Swamee, Jain
     Year: 1976
@@ -22,34 +43,28 @@ def sjFriction(reynolds, roughness):
     return friction
 
 
-def bntFriction(reynolds, roughness):
+def bnt(reynolds, roughness):
     """
     Model: Bellos, Nalbantis, Tsakris
     Year: 2018
-    Paper: https://www.sciencedirect.com/science/article/pii/S0029549311000173
+    Paper
     Suitable Range:
-        All Flow Regimes
+        All Flow Regimes, FREE SURFACE FLOW
     """
-    reynolds = np.array(reynolds)
-    roughness = np.array(roughness)
-    friction = np.empty_like(reynolds)
-
-    # laminar + transition
-    low_re_mask = reynolds < 3000
-    friction[low_re_mask] = 0.316 / (reynolds[low_re_mask] ** (1 / 4))
-
-    # transition + turbulent
-    roughness_term = 0.234 * (roughness ** 1.1007)[~low_re_mask]
-    reynolds_term_neg = -60.525 * (reynolds ** 1.1105)[~low_re_mask]
-    reynolds_term_pos = 56.291 * (reynolds ** 1.0712)[~low_re_mask]
-    friction[~low_re_mask] = 1.613 * (
-        np.log(roughness_term + reynolds_term_neg + reynolds_term_pos) ** (-2)
+    inv_roughness = 1 / roughness
+    param_a = 1 / (1 + (reynolds / 2712) ** 8.4)
+    param_b = 1 / (1 + (reynolds / (150 * inv_roughness)) ** 1.8)
+    exponent_a = 2 * (param_a - 1) * param_b
+    exponent_b = 2 * (param_a - 1) * (1 - param_b)
+    friction = (
+        (64 / reynolds) ** param_a
+        * (0.75 * np.log(reynolds / 5.37)) ** exponent_a
+        * (0.88 * np.log(6.82 * inv_roughness)) ** exponent_b
     )
-
     return friction
 
 
-def fngFriction(reynolds, roughness):
+def fang(reynolds, roughness):
     """
     Model: Fang
     Year: 2011
@@ -72,7 +87,7 @@ def fngFriction(reynolds, roughness):
     return friction
 
 
-def eptFriction(reynolds, roughness):
+def ept(reynolds, roughness):
     """
     Model: Evangelides, Papaevangelou, Tzimopoulos
     Year: 2010
@@ -87,7 +102,7 @@ def eptFriction(reynolds, roughness):
     return friction
 
 
-def akFriction(reynolds, roughness):
+def ak(reynolds, roughness):
     """
     Model: Avci, Kargoz
     Year: 2009
@@ -106,7 +121,7 @@ def akFriction(reynolds, roughness):
     return friction
 
 
-def bkcFriction(reynolds, roughness):
+def bkc(reynolds, roughness):
     """
     Model: Brkic
     Year: 2011
@@ -124,16 +139,18 @@ def bkcFriction(reynolds, roughness):
 if __name__ == "__main__":
     reynolds = np.random.rand() * 5000
     roughness = np.random.rand() * 0.05
+    print(reynolds, roughness)
     table_format = "|{:<15} | {:<7}|"
     fric_headers = ["METHOD", "VALUE"]
 
     factors = []
-    factors.append(["sjFriction", sjFriction(reynolds, roughness)])
-    factors.append(["bntFriction", bntFriction(reynolds, roughness)])
-    factors.append(["fngFriction", fngFriction(reynolds, roughness)])
-    factors.append(["akFriction", akFriction(reynolds, roughness)])
-    factors.append(["bkcFriction", bkcFriction(reynolds, roughness)])
-    factors.append(["eptFriction", eptFriction(reynolds, roughness)])
+    factors.append(["turb_swamee", turb_swamee(reynolds, roughness)])
+    factors.append(["bnt", bnt(reynolds, roughness)])
+    factors.append(["fng", fang(reynolds, roughness)])
+    factors.append(["cfng", laminar_and_fang(reynolds, roughness)])
+    factors.append(["ak", ak(reynolds, roughness)])
+    factors.append(["bkc", bkc(reynolds, roughness)])
+    factors.append(["ept", ept(reynolds, roughness)])
     print(
         "Ensure values are within range of applicability for equations (specifically around transition and laminar region)!"
     )

@@ -1,2 +1,0 @@
-"""module for mixture functions
-"""
