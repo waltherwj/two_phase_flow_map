@@ -28,5 +28,5 @@ class Pipe:
     """
 
     def __init__(self, pipe_diameter, gravity=9.8):
-        self.pipe_diameter = pipe_diameter
+        self.diameter = pipe_diameter
         self.gravity = gravity
