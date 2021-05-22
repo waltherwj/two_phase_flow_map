@@ -1,22 +1,5 @@
-"""functions which are too broad to fit in any other category
-and are used by several different other modules
+""" module to calculate properties of a mixture
 """
-
-
-from conditions.dispersed_bubbles import gas_void_fraction
-
-
-def fluid_area_ratio(velocity, fluid, pipe):
-    """calculate the the fluid are ratio based on the fluid velocity
-    and properties.
-
-    Can be used to calculate gas void fraction
-    """
-    area_gas = fluid.mass_flux / (fluid.density * velocity)
-
-    area_ratio = area_gas / pipe.area
-
-    return area_ratio
 
 
 def mixture_velocity(u_gs, u_ls):
