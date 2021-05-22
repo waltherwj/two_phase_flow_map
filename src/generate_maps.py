@@ -1,11 +1,12 @@
 """
-This is used to generate the single fluid velocity maps
+This is used to generate the maps of each condition 
+and the velocity maps
 """
-import numpy as np
-import matplotlib.pyplot as plt
-from config import Config
 
-import visualization as vis
+
+import numpy as np
+
+from config import Config
 
 
 def generate_velocity_maps(
@@ -28,9 +29,3 @@ def generate_velocity_maps(
     uls_map = np.tile(uls_array, (datapoints, 1)).T
 
     return ugs_map, uls_map
-
-
-ugs_map, uls_map = generate_velocity_maps()
-vis.plot_continuous_symlog(ugs_map, x_ticks=ugs_map[0, :], y_ticks=uls_map[:, 0])
-
-plt.show(block=True)

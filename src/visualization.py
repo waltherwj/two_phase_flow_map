@@ -17,13 +17,13 @@ def plot_continuous_symlog(array_map, x_ticks=None, y_ticks=None, thresh=0.1):
 
     # handle either using axes or not
     if (x_ticks is None) or (y_ticks is None):
-        axs.pcolormesh(array_map, norm=matplotlib.colors.SymLogNorm(linthresh=thresh))
+        axs.pcolormesh(array_map, norm=matplotlib.colors.SymLogNorm(thresh))
     else:
         axs.pcolormesh(
             x_ticks,
             y_ticks,
             array_map,
-            norm=matplotlib.colors.SymLogNorm(linthresh=thresh),
+            norm=matplotlib.colors.SymLogNorm(thresh),
             shading="nearest",
         )
         axs.set_xticks(x_ticks)
