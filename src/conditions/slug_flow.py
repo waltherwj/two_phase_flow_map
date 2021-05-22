@@ -5,7 +5,7 @@ slug flow
 import numpy as np
 
 
-def gas_void_fraction(ugs, uls, liquid, gas, pipe):
+def gas_void_fraction(ugs, uls, liquid, gas, pipe, critical_value=0.25):
     """check if the gas void fraction is above the threshold
     at which bubbles turn into slug flow
         Taitel et al. 1980
@@ -17,7 +17,7 @@ def gas_void_fraction(ugs, uls, liquid, gas, pipe):
     grav = pipe.gravity
     beta = pipe.inclination
 
-    # constant for convenience
+    # constant for convenience and readability
     k = 1.53 * np.sin(beta) * (grav * (rho_l - rho_g) * sigma / (rho_l ** 2)) ** (1 / 4)
 
     # calculate the gas void fraction. Several results depending on the scenario
@@ -33,8 +33,7 @@ def gas_void_fraction(ugs, uls, liquid, gas, pipe):
         gas_void_frac[invalid_mask] = (
             constant_term[invalid_mask] - mutable_term[invalid_mask]
         ) / (2 * k)
-
     else:
         gas_void_frac = ugs / (uls + ugs)
 
-    return gas_void_frac
+    return gas_void_frac > critical_value

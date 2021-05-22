@@ -1,6 +1,7 @@
 """
 define the constants of the two phases. Soft dependency on coolprop for some functionality
 """
+import numpy as np
 
 
 class Gas:
@@ -27,6 +28,7 @@ class Pipe:
     define a class with pipe constants
     """
 
-    def __init__(self, pipe_diameter, gravity=9.8):
-        self.diameter = pipe_diameter
+    def __init__(self, diameter, inclination, gravity=9.81):
+        self.diameter = diameter
         self.gravity = gravity
+        self.inclination = inclination * np.pi / 180
