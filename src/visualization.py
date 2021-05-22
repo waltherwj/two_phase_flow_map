@@ -60,6 +60,7 @@ def plot_categorical_map(array_map, x_ticks=None, y_ticks=None):
 
 
 if __name__ == "__main__":
+    import numpy as np
     from generate_maps import generate_velocity_maps
     from fluids import Liquid, Gas, Pipe
     import conditions.slug_flow
@@ -67,11 +68,13 @@ if __name__ == "__main__":
     ugs_temp, uls_temp = generate_velocity_maps()
     liq_temp = Liquid(density=998, bubble_surface_tension=0.073)
     gas_temp = Gas(density=1.225)
-    pipe_temp = Pipe(diameter=5.1e-2, inclination=20)
-    gas_void_fraction_map = conditions.slug_flow.gas_void_fraction(
-        ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-    )
-    plot_categorical_map(
-        gas_void_fraction_map, x_ticks=ugs_temp[0, :], y_ticks=uls_temp[:, 0]
-    )
+    for inclination in np.linspace(-90, 90, num=5):
+        pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination)
+        gas_void_fraction_map = conditions.slug_flow.gas_void_fraction(
+            ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        )
+        fig_temp, ax = plot_categorical_map(
+            gas_void_fraction_map, x_ticks=ugs_temp[0, :], y_ticks=uls_temp[:, 0]
+        )
+        ax.set_title(inclination)
     plt.show(block=True)
