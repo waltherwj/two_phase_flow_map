@@ -3,7 +3,7 @@ factor based on Colebrook-White approximations.
 
 adapted from 
 https://github.com/IMEConsultants/colebrook/blob/master/colebrook/colebrook.py
- to be compatible with numpy arrays
+ to be compatible with numpy arrays. Under GNU 3 License
 """
 
 
