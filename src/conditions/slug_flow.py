@@ -5,7 +5,7 @@ slug flow
 import numpy as np
 
 
-def gas_void_fraction(ugs, uls, liquid, gas, pipe, critical_value=0.25):
+def gas_void_fraction(u_gs, u_ls, liquid, gas, pipe, critical_value=0.25):
     """check if the gas void fraction is above the threshold
     at which bubbles turn into slug flow
         Taitel et al. 1980
@@ -22,8 +22,8 @@ def gas_void_fraction(ugs, uls, liquid, gas, pipe, critical_value=0.25):
 
     # calculate the gas void fraction. Several results depending on the scenario
     if k != 0:
-        mutable_term = np.sqrt(-4 * ugs * k + (ugs + k + uls) ** 2)
-        constant_term = ugs + k + uls
+        mutable_term = np.sqrt(-4 * u_gs * k + (u_gs + k + u_ls) ** 2)
+        constant_term = u_gs + k + u_ls
 
         # calculate the values
         gas_void_frac = (constant_term - mutable_term) / (2 * k)
@@ -31,9 +31,9 @@ def gas_void_fraction(ugs, uls, liquid, gas, pipe, critical_value=0.25):
         # check in which locations solutions are not valid, and replace with other
         invalid_mask = (gas_void_frac < 0) & (gas_void_frac > 1)
         gas_void_frac[invalid_mask] = (
-            constant_term[invalid_mask] - mutable_term[invalid_mask]
+            constant_term[invalid_mask] + mutable_term[invalid_mask]
         ) / (2 * k)
     else:
-        gas_void_frac = ugs / (uls + ugs)
+        gas_void_frac = u_gs / (u_ls + u_gs)
 
     return gas_void_frac > critical_value

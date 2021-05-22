@@ -1,4 +1,5 @@
+"""functions used to calculate the conditions under which flow is
+a certain regime in a certain map position
 """
-define this directory as a module and allow the internal functions 
-to be called externally
-"""
+
+import config

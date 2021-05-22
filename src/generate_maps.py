@@ -10,21 +10,21 @@ from config import Config
 
 def generate_velocity_maps(
     datapoints=Config.NUMBER_DATAPOINTS,
-    min_uls=Config.MIN_ULS,
-    max_uls=Config.MAX_ULS,
-    min_ugs=Config.MIN_UGS,
-    max_ugs=Config.MAX_UGS,
+    min_u_ls=Config.MIN_ULS,
+    max_u_ls=Config.MAX_ULS,
+    min_u_gs=Config.MIN_UGS,
+    max_u_gs=Config.MAX_UGS,
 ):
-    """create maps of corresponding ugs and uls
-    where ugs is the x axis and uls is the y axis
+    """create maps of corresponding u_gs and u_ls
+    where u_gs is the x axis and u_ls is the y axis
     """
 
     # create the arrays
-    ugs_array = np.geomspace(min_ugs, max_ugs, num=datapoints)
-    uls_array = np.geomspace(min_uls, max_uls, num=datapoints)
+    u_gs_array = np.geomspace(min_u_gs, max_u_gs, num=datapoints)
+    u_ls_array = np.geomspace(min_u_ls, max_u_ls, num=datapoints)
 
     # tile them up in the correct dimension
-    ugs_map = np.tile(ugs_array, (datapoints, 1))
-    uls_map = np.tile(uls_array, (datapoints, 1)).T
+    u_gs_map = np.tile(u_gs_array, (datapoints, 1))
+    u_ls_map = np.tile(u_ls_array, (datapoints, 1)).T
 
-    return ugs_map, uls_map
+    return u_gs_map, u_ls_map

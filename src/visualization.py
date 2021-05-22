@@ -5,6 +5,8 @@ maps and other important features
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
+from conditions import dispersed_bubbles
+
 
 def plot_continuous_symlog(array_map, x_ticks=None, y_ticks=None, thresh=0.1):
     """
@@ -63,14 +65,14 @@ if __name__ == "__main__":
     import numpy as np
     from generate_maps import generate_velocity_maps
     from fluids import Liquid, Gas, Pipe
-    import conditions.slug_flow
+    import conditions.dispersed_bubbles
 
     ugs_temp, uls_temp = generate_velocity_maps()
     liq_temp = Liquid(density=998, bubble_surface_tension=0.073)
     gas_temp = Gas(density=1.225)
     for inclination in np.linspace(-90, 90, num=5):
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination)
-        gas_void_fraction_map = conditions.slug_flow.gas_void_fraction(
+        gas_void_fraction_map = conditions.dispersed_bubbles.gas_void_fraction(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
         fig_temp, ax = plot_categorical_map(
