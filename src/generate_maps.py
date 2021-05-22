@@ -5,7 +5,6 @@ and the velocity maps
 
 
 import numpy as np
-
 from config import Config
 
 
