@@ -1,25 +1,32 @@
 """
-define the fluid constants. Soft dependency on coolprop for some functionality
+define the constants of the two phases. Soft dependency on coolprop for some functionality
 """
 
 
-class Fluids:
+class Gas:
     """
-    define a class fluid properties as an easy way to get values
-    for the constants
+    define a class with gas properties
     """
 
-    def __init__(
-        self,
-        pipe_diameter,
-        liq_density,
-        gas_density,
-        bubble_surface_tension,
-        gravity=9.8,
-    ):
+    def __init__(self, density):
+        self.density = density
 
-        self.pipe_diameter = pipe_diameter
-        self.liq_density = liq_density
-        self.gas_density = gas_density
+
+class Liquid:
+    """
+    define a class with liquid properties
+    """
+
+    def __init__(self, density, bubble_surface_tension):
+        self.density = density
         self.bubble_surface_tension = bubble_surface_tension
+
+
+class Pipe:
+    """
+    define a class with pipe constants
+    """
+
+    def __init__(self, pipe_diameter, gravity=9.8):
+        self.pipe_diameter = pipe_diameter
         self.gravity = gravity

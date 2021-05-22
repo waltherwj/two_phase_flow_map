@@ -4,11 +4,14 @@ bubbly flow
 """
 
 
-def taylor_bubble_exceeds(constants):
+def taylor_bubble_exceeds(liquid, gas, pipe):
     """check if taylor bubble velocity exceeds bubble velocity
     which is necessary for bubbly flow to exist
         Taitel et al. 1980
     """
-    liq_dens = constants.liq_dens
+    rho_l = liquid.density
+    rho_g = gas.density
+    sigma = liquid.bubble_surface_tension
+    gravity = pipe.gravity
 
-    rhs = 19 * (liq_dens - gas_dens)
+    rhs = 19 * (rho_l - rho_g)
