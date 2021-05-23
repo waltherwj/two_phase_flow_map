@@ -3,5 +3,4 @@ a certain regime in a certain map position
 """
 from .unphysical import *
 from .dispersed_bubbles import *
-from .slug_flow import *
 from .bubbly import *

@@ -63,6 +63,7 @@ if __name__ == "__main__":
     from generate_maps import generate_velocity_maps
     from fluids import Liquid, Gas, Pipe
     from parse_maps import get_categories_map
+    from conditions import stratified
 
     total_mass_flow = 0.001
     quality = 0.04
@@ -80,7 +81,10 @@ if __name__ == "__main__":
 
     for inclination in [-90, -80, -30, -1, 0, 1, 30, 80, 90]:
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.001)
-        parsed_map = get_categories_map(
+        # parsed_map = get_categories_map(
+        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        # )
+        parsed_map = stratified.wave_growth(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
         fig_temp, ax = plot_categorical_map(
