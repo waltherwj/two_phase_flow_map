@@ -59,3 +59,26 @@ def angle_prevents_bubble_migration(liquid, gas, pipe, lift_coef=None, gamma=Non
 
     # if the angle is large enough to prevent bubbles from accumulating at the top
     return angle_term > velocity_term
+
+
+def gas_void_fraction(u_gs, u_ls, liquid, gas, pipe, critical_value=0.25):
+    """check if the gas void fraction is above the threshold
+    at which bubbles turn into slug flow
+        Taitel et al. 1980
+    """
+    # local variables for readability
+    rho_l = liquid.density
+    rho_g = gas.density
+    sigma = liquid.bubble_surface_tension
+    grav = pipe.gravity
+    beta = pipe.inclination
+
+    # constant for convenience and readability
+    k = 1.53 * np.sin(beta) * (grav * (rho_l - rho_g) * sigma / (rho_l ** 2)) ** (1 / 4)
+
+    # terms for readability
+    rhs_1 = u_gs * (1 - critical_value) / critical_value
+    rhs_2 = k * (1 - critical_value)
+    rhs = rhs_1 - rhs_2
+
+    return u_ls > rhs
