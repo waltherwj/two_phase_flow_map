@@ -66,7 +66,7 @@ if __name__ == "__main__":
     from conditions import stratified
 
     total_mass_flow = 0.001
-    quality = 0.04
+    quality = 0.6
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         parsed_map = stratified.wave_growth(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
-        fig_temp, ax = plot_categorical_map(
+        fig_temp, ax = plot_continuous_symlog(
             parsed_map,
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
