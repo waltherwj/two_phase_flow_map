@@ -29,7 +29,7 @@ def single_phase_dpdx(velocity, fluid, pipe):
     reynolds = non_dimensional.reynolds(velocity, fluid, pipe)
 
     # get friction factor
-    fric = friction_factor.laminar_and_fang(reynolds, roughness)
+    fric = friction_factor.fang(reynolds, roughness)
 
     dpdx_s = (4 / diam) * fric * rho * (velocity ** 2) / 2
 
@@ -41,9 +41,11 @@ class Geometry:
     liquid height ratio
     """
 
-    def __init__(self, height_ratio, absolute=False, pipe=None):
+    def __init__(
+        self, height_ratio, non_dimensional=False, pipe=None, u_gs=None, u_ls=None
+    ):
 
-        if absolute:
+        if not (non_dimensional):
             diam = pipe.diameter
         else:
             diam = 1
@@ -56,17 +58,41 @@ class Geometry:
 
         # the non dimensional constants
         # areas
-        self.a_liq = self.area_liq() * diam ** 2
-        self.a_gas = self.area_gas() * diam ** 2
+        self.area_l = self.area_liq() * diam ** 2
+        self.area_g = self.area_gas() * diam ** 2
         # perimeters
-        self.perim_liq = self.perimeter_liq() * diam
-        self.perim_gas = self.perimeter_gas() * diam
+        self.perim_l = self.perimeter_liq() * diam
+        self.perim_g = self.perimeter_gas() * diam
         self.perim_interf = self.perimeter_interface() * diam
-        if not (absolute):
-            # velocities
-            self.vel_liq = self.velocity_liq()
-            self.vel_gas = self.velocity_gas()
         # hydraulic diameters
+        self.hydr_diam_l = self.hydraulic_diameter(fluid="liq") * diam
+        self.hydr_diam_g = self.hydraulic_diameter(fluid="gas") * diam
+        # velocities
+        if non_dimensional:
+            self.vel_l = self.velocity_liq()
+            self.vel_g = self.velocity_gas()
+        elif (u_gs is not None) and (u_ls is not None):
+            self.vel_l = self.velocity_liq() * u_ls
+            self.vel_g = self.velocity_gas() * u_gs
+        else:
+            raise ValueError(
+                "Geometry is not nondimensionalized."
+                + " Need u_gs and u_ls for velocity calculation"
+            )
+
+    def hydraulic_diameter(self, fluid="liq"):
+        """
+        calculate hydraulic diam tilde, a non dimensionalized version of
+        the hydraulic diameter
+        """
+        if fluid == "liq":
+            return 4 * self.area_l / self.perim_l
+        elif fluid == "gas":
+            return 4 * self.area_g / (self.perim_g + self.perim_interf)
+        else:
+            raise RuntimeError(
+                "hydraulic diameter needs <fluid> argument to be one of ['liq', 'gas']"
+            )
 
     def area_liq(self):
         """

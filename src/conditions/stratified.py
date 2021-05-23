@@ -115,54 +115,61 @@ class Calculate:
         """f(x) = 0 formulation to iterate and find the equilibrium level of liquid at every
         single u_gs, u_ls pair
         """
-        height_tilde = Calculate.sagitta_absolute_height(u_ls, liquid, pipe)
-        # get the geometry values for these heights
-        geom = Geometry(height_tilde, absolute=True, pipe=pipe)
 
         # local variables for readability and correspondence to the equation
         rho_l = liquid.density
         rho_g = gas.density
         mu_l = liquid.dynamic_viscosity
         mu_g = gas.dynamic_viscosity
-        roughness = pipe.roughness
-        beta = pipe.inclination
-        grav = pipe.gravity
-        s_gas = geom.perim_gas
-        s_liq = geom.perim_liq
-        s_interf = geom.perim_interf
-        a_gas = geom.a_gas
-        a_liq = geom.a_liq
 
-        # average velocities
-        u_g_mean = u_gs / a_gas
-        u_l_mean = u_ls / a_liq
-        u_i_mean = u_l_mean
+        # get the geometry values for these heights
+        height_tilde = Calculate.sagitta_absolute_height(u_ls, liquid, pipe)
+        tilde = Geometry(height_tilde, non_dimensional=True, pipe=pipe)
 
-        # hydraulic diameters
-        hydr_diam_liq = 4 * a_liq / s_liq
-        hydr_diam_gas = 4 * a_gas / (s_liq + s_interf)
+        # get the non dimensional numbers
+        x_sqrd = non_dimensional.lockhart_martinelli(u_gs, u_ls, liquid, gas, pipe) ** 2
+        y_grav = non_dimensional.y_gravity(u_gs, u_ls, liquid, gas, pipe)
 
-        # reynold numbers
-        reynolds_l = u_l_mean * rho_l * hydr_diam_liq / mu_l
-        reynolds_g = u_g_mean * rho_g * hydr_diam_gas / mu_g
+        # get the single fluid reynolds numbers from the non dimensional values
+        reynolds_ls = (
+            (rho_l * u_ls * pipe.diameter / mu_l) * tilde.vel_l * tilde.hydr_diam_l
+        )
+        reynolds_gs = (
+            (rho_g * u_gs * pipe.diameter / mu_g) * tilde.vel_g * tilde.hydr_diam_g
+        )
 
-        # friction factors
-        fric_liq = friction_factor.laminar_and_fang(reynolds_l, roughness)
-        fric_gas = friction_factor.laminar_and_fang(reynolds_g, roughness)
-        fric_interf = fric_gas
-
-        # shear stresses
-        shear_gas = fric_gas * rho_g * (u_g_mean ** 2) / 2
-        shear_liq = fric_liq * rho_l * (u_l_mean ** 2) / 2
-        shear_interf = fric_interf * rho_g * ((u_g_mean - u_i_mean) ** 2) / 2
+        # get the exponents for the blasius friction factor
+        m = Calculate.blasius_exponents(reynolds_gs)
+        n = Calculate.blasius_exponents(reynolds_ls)
 
         # balance equation
-        gas_term = shear_gas * s_gas / a_gas
-        liq_term = shear_liq * s_liq / a_liq
-        interf_term = shear_interf * s_interf * ((1 / a_gas) + (1 / a_liq))
-        grav_term = (rho_l - rho_g) * grav * np.sin(beta)
+        gas_term = (
+            ((tilde.hydr_diam_g * tilde.vel_g) ** (-m))
+            * (tilde.vel_g ** 2)
+            * (
+                (tilde.perim_g / tilde.area_g)
+                + (tilde.perim_interf / tilde.area_l)
+                + (tilde.perim_interf / tilde.area_g)
+            )
+        )
+        liq_term = (
+            x_sqrd
+            * ((tilde.vel_l * tilde.hydr_diam_l) ** (-n))
+            * (tilde.vel_l ** 2)
+            * (tilde.perim_l / tilde.area_l)
+        )
+        grav_term = 4 * y_grav
 
-        return gas_term - liq_term + interf_term + grav_term > 0
+        return gas_term - liq_term - grav_term > 0
+
+    @staticmethod
+    def blasius_exponents(reynolds):
+        """calculates the exponents related to the blasius equation"""
+        exponents = np.empty_like(reynolds)
+        exponents[reynolds > 2300] = 0.2
+        exponents[reynolds <= 2300] = 1
+
+        return exponents
 
     @staticmethod
     def modified_froude(u_gs, liquid, gas, pipe):

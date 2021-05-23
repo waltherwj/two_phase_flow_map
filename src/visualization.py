@@ -67,8 +67,8 @@ if __name__ == "__main__":
     from parse_maps import get_categories_map
     from conditions import stratified, dispersed_bubbles
 
-    total_mass_flow = 0.001
-    quality = 0.6
+    total_mass_flow = 0.01
+    quality = 0.01
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality
 
@@ -82,20 +82,20 @@ if __name__ == "__main__":
     gas_temp = Gas(density=1.225, mass_flowrate=gas_massflow, dynamic_viscosity=18.3e-6)
 
     for inclination in [-90, -80, -30, -1, 0, 1, 30, 80, 90]:
-        pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.001)
+        pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.00001)
         # parsed_map = get_categories_map(
         #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         # )
-        # parsed_map = stratified.Calculate.equilibrium_equation(
-        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        # )
+        parsed_map = stratified.Calculate.equilibrium_equation(
+            ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        )
 
         # wave_map = stratified.wave_growth(
         #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         # )
-        parsed_map = dispersed_bubbles.bubble_coalescence(
-            ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        )
+        # parsed_map = dispersed_bubbles.bubble_coalescence(
+        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        # )
         fig_temp, ax = plot_categorical_map(
             parsed_map,
             x_ticks=ugs_temp[0, :],

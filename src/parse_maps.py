@@ -65,11 +65,13 @@ def get_categories_map(u_gs, u_ls, liquid, gas, pipe):
     category_map = np.zeros_like(unphysical_map, dtype=np.float32)
 
     # colors will correspond to these numbers
-    # bubbly superseeds bubble on map where they both are true
-    category_map[bubbly_map] = 2
-    category_map[bubble_map] = 1
+    # if bubbly is true, dispersed bubble isn't
+    if np.any(bubbly_map):
+        category_map[bubbly_map] = 2
+    else:
+        category_map[bubble_map] = 1
 
     # unphysical conditions are always NaN
-    category_map[unphysical_map] = np.nan
+    # category_map[unphysical_map] = np.nan
 
     return category_map
