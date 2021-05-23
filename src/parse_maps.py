@@ -63,8 +63,8 @@ def get_categories_map(u_gs, u_ls, liquid, gas, pipe):
 
     # initialize a map with all zeros
     category_map = np.zeros_like(unphysical_map, dtype=np.float32)
-
     # colors will correspond to these numbers
+
     # if bubbly is true, dispersed bubble isn't
     if np.any(bubbly_map):
         category_map[bubbly_map] = 2

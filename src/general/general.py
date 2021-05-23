@@ -65,8 +65,8 @@ class Geometry:
         self.perim_g = self.perimeter_gas() * diam
         self.perim_interf = self.perimeter_interface() * diam
         # hydraulic diameters
-        self.hydr_diam_l = self.hydraulic_diameter(fluid="liq") * diam
-        self.hydr_diam_g = self.hydraulic_diameter(fluid="gas") * diam
+        self.hydr_diam_l = self.hydraulic_diameter(fluid="liq")
+        self.hydr_diam_g = self.hydraulic_diameter(fluid="gas")
         # velocities
         if non_dimensional:
             self.vel_l = self.velocity_liq()
@@ -82,8 +82,7 @@ class Geometry:
 
     def hydraulic_diameter(self, fluid="liq"):
         """
-        calculate hydraulic diam tilde, a non dimensionalized version of
-        the hydraulic diameter
+        calculate the hydraulic diameter of the fluid
         """
         if fluid == "liq":
             return 4 * self.area_l / self.perim_l
@@ -113,7 +112,7 @@ class Geometry:
         var = self.var
 
         # terms for readability
-        term_1 = np.pi - np.arccos(var)
+        term_1 = np.arccos(var)
         term_2 = var * np.sqrt(1 - var ** 2)
         gas_area_tilde = 0.25 * (term_1 - term_2)
         return gas_area_tilde
@@ -152,3 +151,43 @@ class Geometry:
         of the velocity
         """
         return (np.pi / 4) / self.area_gas()
+
+
+def sagitta_absolute_height(velocity, fluid, pipe):
+    """
+    takes single fluid velocities and returns the equivalent
+    height
+    """
+
+    radius = pipe.diameter / 2
+
+    # calculate the area ratio the fluid occupies
+    area_ratio = general.fluid_area_ratio(velocity, fluid, pipe)
+    valid_mask = (area_ratio < 1) & (area_ratio > 0)
+
+    # calculate the absolute area that corresponds to this
+    area_fluid = area_ratio * pipe.area
+
+    # iterate to find the angle theta that corresponds to this
+    # the function
+    area_function = lambda theta, r, area: area - ((r ** 2) / 2) * (
+        theta - np.sin(theta)
+    )
+
+    # initialize the array
+    theta = np.zeros_like(area_ratio)
+
+    # use newton to find it
+    initial_guess = np.ones_like(area_ratio[valid_mask]) * np.pi / 4
+    theta[valid_mask] = newton(
+        area_function, initial_guess, args=(radius, area_fluid[valid_mask])
+    )
+
+    # update the values that haven't been solved
+    theta[area_ratio >= 1] = 2 * np.pi
+    theta[area_ratio <= 0] = 0
+
+    # find the heights from the theta
+    height = radius * (1 - np.cos(theta / 2))
+
+    return height

@@ -2,55 +2,86 @@
 the functions that define the conditions for flow to be considered
 stratified flow
 """
+from operator import ne
 import numpy as np
-from scipy.optimize import newton
+from scipy.optimize import newton, root
 import general
 from general.general import Geometry
 from general import friction_factor, non_dimensional
+from config import Config
 
 
-def wave_growth(u_gs, u_ls, liquid, gas, pipe):
-    """check the conditon at which waves will not yet grow
-    Taitel&Duckler 1976
+def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
+    """find if it is stratified or not at the critical height
+        based on the the equilibrium level of liquid at every
+    single u_gs, u_ls pair
     """
 
-    # local variables for readability
-    diam = pipe.diameter
-    area = pipe.area
+    # local variables for readability and correspondence to the equation
+    rho_l = liquid.density
+    rho_g = gas.density
+    mu_l = liquid.dynamic_viscosity
+    mu_g = gas.dynamic_viscosity
+    roughness = pipe.roughness
 
-    # get the modified froude number
-    froude = Calculate.modified_froude(u_gs, liquid, gas, pipe)
+    # Set inital guess that solves from the top
+    # the solution space is difficult
+    # TODO find how to set a good initial guess
+    height_initial = np.ones_like(u_gs) * 0.95
 
-    # height
-    height = Calculate.sagitta_absolute_height(u_ls, liquid, pipe)
-
-    # get the non-dimensional values
-    # height ratio
-    height_tilde = height / diam
-
-    # non dimensional values
-    tilde = Geometry(height_tilde)
-
-    # areas
-    area_ratio_gas = general.fluid_area_ratio(u_gs, gas, pipe)
-    area_gas = area_ratio_gas * area
-    area_gas_tilde = area_gas / (diam ** 2)
-
-    # derivative
-    dadh_l_tilde = ((2 - 2 * height_tilde) * height_tilde) / np.sqrt(
-        (1 - height_tilde) * height_tilde
+    # the critical heights at which waves would start to grow
+    height_tilde = newton(
+        Calculate.wave_growth, height_initial, args=(u_gs, liquid, gas, pipe)
     )
 
-    # velocity
-    u_g_tilde = area / area_gas
+    # non dimensional
+    tilde = Geometry(height_tilde, non_dimensional=True)
+    # dimensional
+    geom = Geometry(
+        height_tilde, non_dimensional=False, pipe=pipe, u_gs=u_gs, u_ls=u_ls
+    )
 
-    # divide lhs in terms for readability
-    lhs_1 = 1 / ((1 - height_tilde) ** 2)
-    lhs_2 = (u_g_tilde ** 2) * dadh_l_tilde / area_gas_tilde
-    lhs = (froude ** 2) * lhs_1 * lhs_2
+    # get the non dimensional numbers
+    x_sqrd = non_dimensional.lockhart_martinelli(u_gs, u_ls, liquid, gas, pipe) ** 2
+    y_grav = non_dimensional.y_gravity(u_gs, u_ls, liquid, gas, pipe)
 
-    # if lhs<1, waves are not yet forming
-    return lhs < 1
+    # get the single fluid reynolds numbers from the non dimensional values
+    reynolds_ls = rho_l * u_ls * pipe.diameter / mu_l
+    reynolds_gs = rho_g * u_gs * pipe.diameter / mu_g
+
+    # get the actual fluid average reynolds
+    reynolds_l_actual = rho_l * geom.vel_l * geom.hydr_diam_l / mu_l
+    reynolds_g_actual = rho_l * geom.vel_g * geom.hydr_diam_g / mu_l
+
+    # get the friction factors for all the fluids
+    # actual
+    friction_g = friction_factor.fang(reynolds_g_actual, roughness)
+    friction_l = friction_factor.fang(reynolds_l_actual, roughness)
+    # single fluid
+    friction_gs = friction_factor.fang(reynolds_gs, roughness)
+    friction_ls = friction_factor.fang(reynolds_ls, roughness)
+
+    # balance equation adapted from dimensional version of Taitel 1976
+    gas_term = (
+        (friction_g / friction_gs)
+        * (tilde.vel_g ** 2)
+        * (
+            (tilde.perim_g / tilde.area_g)
+            + (tilde.perim_interf / tilde.area_l)
+            + (tilde.perim_interf / tilde.area_g)
+        )
+    )
+    liq_term = (
+        x_sqrd
+        * (friction_l / friction_ls)
+        * (tilde.vel_l ** 2)
+        * (tilde.perim_l / tilde.area_l)
+    )
+    grav_term = 4 * y_grav
+
+    # this indicates the area where waves start to grow and the
+    # equilibrium equation is not met
+    return gas_term - liq_term - grav_term > 0
 
 
 class Calculate:
@@ -59,117 +90,29 @@ class Calculate:
     returning condition maps
     """
 
-    def sagitta_absolute_height(velocity, fluid, pipe):
-        """
-        takes single fluid velocities and returns the equivalent
-        height ratios
-        """
-
-        radius = pipe.diameter / 2
-
-        # calculate the area ratio the fluid occupies
-        area_ratio = general.fluid_area_ratio(velocity, fluid, pipe)
-        valid_mask = (area_ratio < 1) & (area_ratio > 0)
-
-        # calculate the absolute area that corresponds to this
-        area_fluid = area_ratio * pipe.area
-
-        # iterate to find the angle theta that corresponds to this
-        # the function
-        area_function = lambda theta, r, area: area - ((r ** 2) / 2) * (
-            theta - np.sin(theta)
-        )
-
-        # initialize the array
-        theta = np.zeros_like(area_ratio)
-
-        # use newton to find it
-        initial_guess = np.ones_like(area_ratio[valid_mask]) * np.pi / 4
-        theta[valid_mask] = newton(
-            area_function, initial_guess, args=(radius, area_fluid[valid_mask])
-        )
-
-        # update the values that haven't been solved
-        theta[area_ratio >= 1] = 2 * np.pi
-        theta[area_ratio <= 0] = 0
-
-        # find the heights from the theta
-        height = radius * (1 - np.cos(theta / 2))
-
-        return height
-
-    @staticmethod
-    def equilibrium_level(u_gs, u_ls, liquid, gas, pipe):
-        """calculate the equilibrium level of liquid at every
-        single u_gs, u_ls pair
-        """
-        h_init = np.ones_like(u_gs) * 0.25
-        h_equilibrium = newton(
-            Calculate.equilibrium_equation, h_init, args=(u_gs, u_ls, liquid, gas, pipe)
-        )
-
-        return h_equilibrium
-
-    @staticmethod
-    def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
-        """f(x) = 0 formulation to iterate and find the equilibrium level of liquid at every
-        single u_gs, u_ls pair
+    def wave_growth(crit_height, u_gs, liquid, gas, pipe):
+        """f(x) = 0 formulation to find the critical fluid height
+        at which waves will grow
+        Taitel&Duckler 1976
         """
 
-        # local variables for readability and correspondence to the equation
-        rho_l = liquid.density
-        rho_g = gas.density
-        mu_l = liquid.dynamic_viscosity
-        mu_g = gas.dynamic_viscosity
+        # get the modified froude number
+        froude = Calculate.modified_froude(u_gs, liquid, gas, pipe)
 
-        # get the geometry values for these heights
-        height_tilde = Calculate.sagitta_absolute_height(u_ls, liquid, pipe)
-        tilde = Geometry(height_tilde, non_dimensional=True, pipe=pipe)
+        # non dimensional values
+        tilde = Geometry(crit_height, non_dimensional=True)
 
-        # get the non dimensional numbers
-        x_sqrd = non_dimensional.lockhart_martinelli(u_gs, u_ls, liquid, gas, pipe) ** 2
-        y_grav = non_dimensional.y_gravity(u_gs, u_ls, liquid, gas, pipe)
-
-        # get the single fluid reynolds numbers from the non dimensional values
-        reynolds_ls = (
-            (rho_l * u_ls * pipe.diameter / mu_l) * tilde.vel_l * tilde.hydr_diam_l
-        )
-        reynolds_gs = (
-            (rho_g * u_gs * pipe.diameter / mu_g) * tilde.vel_g * tilde.hydr_diam_g
+        # derivative
+        dadh_l_tilde = ((2 - 2 * crit_height) * crit_height) / np.sqrt(
+            (1 - crit_height) * crit_height
         )
 
-        # get the exponents for the blasius friction factor
-        m = Calculate.blasius_exponents(reynolds_gs)
-        n = Calculate.blasius_exponents(reynolds_ls)
+        # divide lhs in terms for readability
+        lhs_1 = 1 / ((1 - crit_height) ** 2)
+        lhs_2 = (tilde.vel_g ** 2) * dadh_l_tilde / tilde.area_g
+        lhs = (froude ** 2) * lhs_1 * lhs_2
 
-        # balance equation
-        gas_term = (
-            ((tilde.hydr_diam_g * tilde.vel_g) ** (-m))
-            * (tilde.vel_g ** 2)
-            * (
-                (tilde.perim_g / tilde.area_g)
-                + (tilde.perim_interf / tilde.area_l)
-                + (tilde.perim_interf / tilde.area_g)
-            )
-        )
-        liq_term = (
-            x_sqrd
-            * ((tilde.vel_l * tilde.hydr_diam_l) ** (-n))
-            * (tilde.vel_l ** 2)
-            * (tilde.perim_l / tilde.area_l)
-        )
-        grav_term = 4 * y_grav
-
-        return gas_term - liq_term - grav_term > 0
-
-    @staticmethod
-    def blasius_exponents(reynolds):
-        """calculates the exponents related to the blasius equation"""
-        exponents = np.empty_like(reynolds)
-        exponents[reynolds > 2300] = 0.2
-        exponents[reynolds <= 2300] = 1
-
-        return exponents
+        return lhs - 1
 
     @staticmethod
     def modified_froude(u_gs, liquid, gas, pipe):
@@ -183,7 +126,7 @@ class Calculate:
         beta = pipe.inclination
 
         # terms for readability
-        froude_1 = np.sqrt(rho_l / (rho_l - rho_g))
+        froude_1 = np.sqrt(rho_g / (rho_l - rho_g))
         froude_2 = u_gs / np.sqrt(diam * grav * np.cos(beta))
         froude = froude_1 * froude_2
 
