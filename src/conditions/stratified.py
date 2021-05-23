@@ -5,6 +5,8 @@ stratified flow
 import numpy as np
 from scipy.optimize import newton
 import general
+from general.general import Geometry
+from general import friction_factor, non_dimensional
 
 
 def wave_growth(u_gs, u_ls, height, liquid, gas, pipe):
@@ -24,7 +26,7 @@ def wave_growth(u_gs, u_ls, height, liquid, gas, pipe):
     height_tilde = height / diam
 
     # non dimensional values
-    tilde = NonDimGeom(height_tilde)
+    tilde = Geometry(height_tilde)
 
     # areas
     area_ratio_gas = general.fluid_area_ratio(u_gs, gas, pipe)
@@ -46,26 +48,6 @@ def wave_growth(u_gs, u_ls, height, liquid, gas, pipe):
 
     # if lhs<1, waves are not yet forming
     return lhs - 1
-
-
-class NonDimGeom:
-    """calculates and stores the non dimensional geometric values related to the
-    liquid height
-    """
-
-    def __init__(self, height_ratio):
-
-        # height
-        height = self.sagitta_absolute_height(u_ls, liquid, pipe)
-        self.height = height / pipe.diameter
-
-        # areas
-        area_gas_ratio = general.fluid_area_ratio(u_gs, gas, pipe)
-        area_liq_ratio = general.fluid_area_ratio(u_ls, liquid, pipe)
-        area_gas = area_gas_ratio * pipe.area
-        area_liq = area_liq_ratio * pipe.area
-        self.area_gas = area_gas / (pipe.diameter ** 2)
-        self.area_liq = area_liq / (pipe.diameter ** 2)
 
 
 class Calculate:
@@ -115,12 +97,69 @@ class Calculate:
 
     @staticmethod
     def equilibrium_level(u_gs, u_ls, liquid, gas, pipe):
+        """calculate the equilibrium level of liquid at every
+        single u_gs, u_ls pair
         """
-        calculate the equilibrium level of liquid at every
+        h_init = np.ones_like(u_gs) * 0.25
+        h_equilibrium = newton(
+            Calculate.equilibrium_equation, h_init, args=(u_gs, u_ls, liquid, gas, pipe)
+        )
+
+        return h_equilibrium
+
+    @staticmethod
+    def equilibrium_equation(height_tilde, u_gs, u_ls, liquid, gas, pipe):
+        """f(x) = 0 formulation to iterate and find the equilibrium level of liquid at every
         single u_gs, u_ls pair
         """
 
-        pass
+        # get the geometry values for these heights
+        geom = Geometry(height_tilde, absolute=True, pipe=pipe)
+
+        # local variables for readability and correspondence to the equation
+        rho_l = liquid.density
+        rho_g = gas.density
+        mu_l = liquid.dynamic_viscosity
+        mu_g = gas.dynamic_viscosity
+        roughness = pipe.roughness
+        beta = pipe.inclination
+        grav = pipe.gravity
+        s_gas = geom.perim_gas
+        s_liq = geom.perim_liq
+        s_interf = geom.perim_interf
+        a_gas = geom.a_gas
+        a_liq = geom.a_liq
+
+        # average velocities
+        u_g_mean = u_gs / a_gas
+        u_l_mean = u_ls / a_liq
+        u_i_mean = u_l_mean
+
+        # hydraulic diameters
+        hydr_diam_liq = 4 * a_liq / s_liq
+        hydr_diam_gas = 4 * a_gas / (s_liq + s_interf)
+
+        # reynold numbers
+        reynolds_l = u_l_mean * rho_l * hydr_diam_liq / mu_l
+        reynolds_g = u_g_mean * rho_g * hydr_diam_gas / mu_g
+
+        # friction factors
+        fric_liq = friction_factor.laminar_and_fang(reynolds_l, roughness)
+        fric_gas = friction_factor.laminar_and_fang(reynolds_g, roughness)
+        fric_interf = fric_gas
+
+        # shear stresses
+        shear_gas = fric_gas * rho_g * (u_g_mean ** 2) / 2
+        shear_liq = fric_liq * rho_l * (u_l_mean ** 2) / 2
+        shear_interf = fric_interf * rho_g * ((u_g_mean - u_i_mean) ** 2) / 2
+
+        # balance equation
+        gas_term = shear_gas * s_gas / a_gas
+        liq_term = shear_liq * s_liq / a_liq
+        interf_term = shear_interf * s_interf * ((1 / a_gas) + (1 / a_liq))
+        grav_term = (rho_l - rho_g) * grav * np.sin(beta)
+
+        return gas_term - liq_term + interf_term + grav_term
 
     @staticmethod
     def modified_froude(u_gs, liquid, gas, pipe):

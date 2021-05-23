@@ -84,7 +84,7 @@ if __name__ == "__main__":
         # parsed_map = get_categories_map(
         #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         # )
-        parsed_map = stratified.wave_growth(
+        parsed_map = stratified.Calculate.equilibrium_level(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
         fig_temp, ax = plot_continuous_symlog(
