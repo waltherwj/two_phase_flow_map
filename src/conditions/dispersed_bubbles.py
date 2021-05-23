@@ -3,6 +3,7 @@ the functions that define the conditions for flow to be considered
 dispersed bubble flow
 """
 
+from general.non_dimensional import reynolds
 import numpy as np
 import general.friction_factor as friction_factor
 import general
@@ -30,13 +31,8 @@ def bubble_coalescence(u_gs, u_ls, liquid, gas, pipe):
     migration_to_top_size = Calculate.migration_to_top_critical_size(
         u_gs, u_ls, liquid, gas, pipe
     )
-    # get a mask where the deformed bubble is the critical size
-    mask = deformed_bubble_size < migration_to_top_size
     # make the array
-    bubble_crit_diam = migration_to_top_size
-    bubble_crit_diam[mask] = deformed_bubble_size
-
-    # calculate the rhs
+    bubble_crit_diam = np.minimum(migration_to_top_size, deformed_bubble_size)
 
     # get the mixture values
     mix = Mix(u_gs, u_ls, liquid, gas, pipe)
@@ -47,12 +43,12 @@ def bubble_coalescence(u_gs, u_ls, liquid, gas, pipe):
     reynolds_mix = general.reynolds(u_mix, mix, pipe)
 
     # mixture friction factor
-    fric_mix = friction_factor.laminar_and_fang(reynolds_mix, roughness)
+    fric_mix = friction_factor.fang(reynolds_mix, roughness)
 
     # get the terms for readability
     rhs_1 = 0.725 + 4.15 * np.sqrt(u_gs / u_mix)
     rhs_2 = (sigma / rho_l) ** (3 / 5)
-    rhs_3 = ((2 * fric_mix / diam) * (u_mix ** 3)) ** (-2 / 3)
+    rhs_3 = ((2 * fric_mix / diam) * (u_mix ** 3)) ** (-2 / 5)
     rhs = rhs_1 * rhs_2 * rhs_3
 
     # check if the bubbles are few/small enough that they won't coalesce
@@ -104,7 +100,7 @@ class Calculate:
         reynolds_mix = general.reynolds(u_mix, mix, pipe)
 
         # mixture friction factor
-        friction_mix = friction_factor.laminar_and_fang(reynolds_mix, roughness)
+        friction_mix = friction_factor.fang(reynolds_mix, roughness)
 
         # critical bubble size
         diam_crit_migration = (

@@ -65,7 +65,7 @@ if __name__ == "__main__":
     from generate_maps import generate_velocity_maps
     from fluids import Liquid, Gas, Pipe
     from parse_maps import get_categories_map
-    from conditions import stratified
+    from conditions import stratified, dispersed_bubbles
 
     total_mass_flow = 0.001
     quality = 0.6
@@ -86,15 +86,18 @@ if __name__ == "__main__":
         # parsed_map = get_categories_map(
         #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         # )
-        parsed_map = stratified.Calculate.equilibrium_equation(
-            ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        )
+        # parsed_map = stratified.Calculate.equilibrium_equation(
+        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        # )
 
-        wave_map = stratified.wave_growth(
+        # wave_map = stratified.wave_growth(
+        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        # )
+        parsed_map = dispersed_bubbles.bubble_coalescence(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
         fig_temp, ax = plot_categorical_map(
-            ~parsed_map & ~wave_map,
+            parsed_map,
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
         )
