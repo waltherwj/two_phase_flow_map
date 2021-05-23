@@ -69,13 +69,13 @@ class Mix:
         # local variables for readability
         rho_l = self.liquid.density
         rho_g = self.gas.density
-        u_mix = Mix.mixture_velocity(u_gs, u_ls)
 
-        # void fraction
-        void_fraction = u_gs / u_mix
+        # get the area ratios corresponding to superficial velocity values
+        gas_area_ratio = fluid_area_ratio(u_gs, self.gas, self.pipe)
+        liq_area_ratio = fluid_area_ratio(u_ls, self.liquid, self.pipe)
 
         # get the equivalent mixture density
-        rho_mix = void_fraction * rho_g + (1 - void_fraction) * rho_l
+        rho_mix = gas_area_ratio * rho_g + liq_area_ratio * rho_l
 
         return rho_mix
 
