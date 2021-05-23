@@ -5,6 +5,8 @@ maps and other important features
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
+from conditions.stratified import wave_growth
+
 
 def plot_continuous_symlog(array_map, x_ticks=None, y_ticks=None, thresh=1e-5):
     """
@@ -84,11 +86,15 @@ if __name__ == "__main__":
         # parsed_map = get_categories_map(
         #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         # )
-        parsed_map = stratified.Calculate.equilibrium_level(
+        parsed_map = stratified.Calculate.equilibrium_equation(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
-        fig_temp, ax = plot_continuous_symlog(
-            parsed_map,
+
+        wave_map = stratified.wave_growth(
+            ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        )
+        fig_temp, ax = plot_categorical_map(
+            ~parsed_map & ~wave_map,
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
         )

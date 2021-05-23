@@ -49,6 +49,8 @@ class Geometry:
             diam = 1
 
         self.height_ratio = height_ratio
+        self.height_ratio[height_ratio > 1] = 1
+        self.height_ratio[height_ratio < 0] = 0
         # dummy constant for readability
         self.var = 2 * self.height_ratio - 1
 

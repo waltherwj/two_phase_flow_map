@@ -9,7 +9,7 @@ from general.general import Geometry
 from general import friction_factor, non_dimensional
 
 
-def wave_growth(u_gs, u_ls, height, liquid, gas, pipe):
+def wave_growth(u_gs, u_ls, liquid, gas, pipe):
     """check the conditon at which waves will not yet grow
     Taitel&Duckler 1976
     """
@@ -20,6 +20,9 @@ def wave_growth(u_gs, u_ls, height, liquid, gas, pipe):
 
     # get the modified froude number
     froude = Calculate.modified_froude(u_gs, liquid, gas, pipe)
+
+    # height
+    height = Calculate.sagitta_absolute_height(u_ls, liquid, pipe)
 
     # get the non-dimensional values
     # height ratio
@@ -47,7 +50,7 @@ def wave_growth(u_gs, u_ls, height, liquid, gas, pipe):
     lhs = (froude ** 2) * lhs_1 * lhs_2
 
     # if lhs<1, waves are not yet forming
-    return lhs - 1
+    return lhs < 1
 
 
 class Calculate:
@@ -56,7 +59,7 @@ class Calculate:
     returning condition maps
     """
 
-    def sagitta_absolute_height(self, velocity, fluid, pipe):
+    def sagitta_absolute_height(velocity, fluid, pipe):
         """
         takes single fluid velocities and returns the equivalent
         height ratios
@@ -108,11 +111,11 @@ class Calculate:
         return h_equilibrium
 
     @staticmethod
-    def equilibrium_equation(height_tilde, u_gs, u_ls, liquid, gas, pipe):
+    def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
         """f(x) = 0 formulation to iterate and find the equilibrium level of liquid at every
         single u_gs, u_ls pair
         """
-
+        height_tilde = Calculate.sagitta_absolute_height(u_ls, liquid, pipe)
         # get the geometry values for these heights
         geom = Geometry(height_tilde, absolute=True, pipe=pipe)
 
@@ -159,7 +162,7 @@ class Calculate:
         interf_term = shear_interf * s_interf * ((1 / a_gas) + (1 / a_liq))
         grav_term = (rho_l - rho_g) * grav * np.sin(beta)
 
-        return gas_term - liq_term + interf_term + grav_term
+        return gas_term - liq_term + interf_term + grav_term > 0
 
     @staticmethod
     def modified_froude(u_gs, liquid, gas, pipe):
