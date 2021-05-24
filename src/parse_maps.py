@@ -80,14 +80,14 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     overlay_map = np.full_like(u_ls, np.nan)
     # colors will correspond to these numbers
 
-    # dispersed bubble is true regardless of other conditions, so goes on the overlay map
-    overlay_map[bubble_map] = 1
+    # dispersed bubble is true regardless of other conditions
+    category_map[bubble_map] = 1
 
     # stratified if it is stratified
-    category_map[stratified_map] = 1
+    category_map[stratified_map & np.isnan(category_map)] = 2
 
     # if bubbly is possible and it is not anything else, it is bubbly (not true but for now)
-    category_map[bubbly_map & np.isnan(category_map)] = 2
+    category_map[bubbly_map & np.isnan(category_map)] = 3
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = np.nan
