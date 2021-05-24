@@ -126,4 +126,7 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     # category_map[unphysical_map] = -1
     overlay_map[unphysical_map] = -1
 
+    # gas_core_map = annular.gas_core_blockage(u_gs, u_ls, liquid, gas, pipe)
+    # overlay_map[gas_core_map] = 1
+
     return category_map, overlay_map
