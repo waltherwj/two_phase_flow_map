@@ -87,16 +87,7 @@ if __name__ == "__main__":
         categories, overlays = get_categories_maps(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
-        # parsed_map = stratified.equilibrium_equation(
-        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        # )
 
-        # wave_map = stratified.wave_growth(
-        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        # )
-        # parsed_map = dispersed_bubbles.bubble_coalescence(
-        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        # )
         fig_temp, ax = plot_categorical_map(
             categories,
             overlays,

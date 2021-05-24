@@ -3,9 +3,7 @@ This module dictates how all the maps interact and which ones
 are valid at a certain map location
 """
 import numpy as np
-from conditions import dispersed_bubbles, stratified
-from conditions import bubbly
-from conditions import unphysical
+from conditions import annular, bubbly, dispersed_bubbles, stratified, unphysical
 
 
 def parse_bubbly(u_gs, u_ls, liquid, gas, pipe):
@@ -72,6 +70,15 @@ def parse_stratified(u_gs, u_ls, liquid, gas, pipe):
     return stratified_map
 
 
+def parse_annular(u_gs, u_ls, liquid, gas, pipe):
+    """
+    parse the conditions of the annular region
+    """
+    annular_map = annular.liquid_stability(u_gs, u_ls, liquid, gas, pipe)
+
+    return annular_map
+
+
 def parse_unphysical(u_gs, u_ls, liquid, gas, pipe):
     """
     parse the unphysical condition maps
@@ -89,6 +96,7 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     bubbly_map = parse_bubbly(u_gs, u_ls, liquid, gas, pipe)
     bubble_map = parse_dispersed_bubble(u_gs, u_ls, liquid, gas, pipe)
     stratified_map = parse_stratified(u_gs, u_ls, liquid, gas, pipe)
+    annular_map = parse_annular(u_gs, u_ls, liquid, gas, pipe)
     unphysical_map = parse_unphysical(u_gs, u_ls, liquid, gas, pipe)
 
     # initialize a map with all zeros. Some maps are overlays on the actual map
@@ -99,11 +107,14 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     # dispersed bubble is true regardless of other conditions
     category_map[bubble_map] = 1
 
-    # stratified if it is stratified
+    # stratified
     category_map[stratified_map & np.isnan(category_map)] = 2
 
+    # annular
+    category_map[annular_map & np.isnan(category_map)] = 3
+
     # if bubbly is possible and it is not anything else, it is bubbly (not true but for now)
-    category_map[bubbly_map & np.isnan(category_map)] = 3
+    category_map[bubbly_map & np.isnan(category_map)] = 4
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = -1
