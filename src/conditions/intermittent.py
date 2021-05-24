@@ -48,7 +48,7 @@ def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):
     # mixture reynolds number
     reynolds_mix = general.reynolds(u_mix, mix, pipe)
     # mixture friction factor
-    fric_mix = friction_factor.fang(reynolds_mix, pipe.roughness)
+    fric_mix = friction_factor.niazkar_and_churchill(reynolds_mix, pipe.roughness)
 
     # get the critical size
     critical_diam = deformed_bubble_critical_size(liquid, gas, pipe)

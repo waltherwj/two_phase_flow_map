@@ -29,7 +29,7 @@ def single_phase_dpdx(velocity, fluid, pipe):
     reynolds = non_dimensional.reynolds(velocity, fluid, pipe)
 
     # get friction factor
-    fric = friction_factor.fang(reynolds, roughness)
+    fric = friction_factor.niazkar_and_churchill(reynolds, roughness)
 
     dpdx_s = (4 / diam) * fric * rho * (velocity ** 2) / 2
 

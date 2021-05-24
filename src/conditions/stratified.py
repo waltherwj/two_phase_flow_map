@@ -52,11 +52,11 @@ def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
 
     # get the friction factors for all the fluids
     # actual
-    friction_g = friction_factor.fang(reynolds_g_actual, roughness)
-    friction_l = friction_factor.fang(reynolds_l_actual, roughness)
+    friction_g = friction_factor.niazkar_and_churchill(reynolds_g_actual, roughness)
+    friction_l = friction_factor.niazkar_and_churchill(reynolds_l_actual, roughness)
     # single fluid
-    friction_gs = friction_factor.fang(reynolds_gs, roughness)
-    friction_ls = friction_factor.fang(reynolds_ls, roughness)
+    friction_gs = friction_factor.niazkar_and_churchill(reynolds_gs, roughness)
+    friction_ls = friction_factor.niazkar_and_churchill(reynolds_ls, roughness)
 
     # balance equation adapted from dimensional version of Taitel 1976
     gas_term = (
@@ -110,7 +110,7 @@ def too_steep_for_stratified(u_gs, u_ls, liquid, gas, pipe):
     # right hand side
     # get the actual fluid average reynolds and related frtiction factor
     reynolds_l_actual = rho_l * geom.vel_l * geom.hydr_diam_l / mu_l
-    friction_l = friction_factor.fang(reynolds_l_actual, roughness)
+    friction_l = friction_factor.niazkar_and_churchill(reynolds_l_actual, roughness)
 
     rhs = grav * pipe.diameter * (1 - height_tilde) * np.cos(beta) / friction_l
 
