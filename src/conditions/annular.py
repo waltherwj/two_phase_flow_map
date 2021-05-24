@@ -18,7 +18,12 @@ def liquid_stability(u_gs, u_ls, liquid, gas, pipe):
     # iterate to find the holdup
     initial_alpha_l = 1 - u_gs / (u_ls + u_gs)
     liquid_holdup = newton(
-        Calculate.liquid_instability, initial_alpha_l, args=(x_sqrd,)
+        Calculate.liquid_instability,
+        initial_alpha_l,
+        args=(
+            y_grav,
+            x_sqrd,
+        ),
     )
 
     # get rid of nonsensical values
@@ -36,10 +41,17 @@ def gas_core_blockage(u_gs, u_ls, liquid, gas, pipe):
     """
     # get the non dimensional values
     x_sqrd = general.lockhart_martinelli(u_gs, u_ls, liquid, gas, pipe) ** 2
+    y_grav = general.y_gravity(u_gs, u_ls, liquid, gas, pipe)
+
     # iterate to find the holdup
     initial_alpha_l = 1 - u_gs / (u_ls + u_gs)
     liquid_holdup = newton(
-        Calculate.liquid_instability, initial_alpha_l, args=(x_sqrd,)
+        Calculate.liquid_instability,
+        initial_alpha_l,
+        args=(
+            y_grav,
+            x_sqrd,
+        ),
     )
     # get rid of nonsensical values
     liquid_holdup[(liquid_holdup < 0) | (liquid_holdup > 1)] = np.nan
@@ -53,16 +65,15 @@ class Calculate:
     namespace for the functions that are calculations and not maps
     """
 
-    def liquid_instability(alpha_l, x_sqrd):
+    def liquid_instability(alpha_l, y_grav, x_sqrd):
         """f(x)=0 formulation to find the equivalent annular liquid
         holdup at every u_gs, u_ls location
-        barnea 1987 equation 15 and 16
+        barnea 1987 equation 15
         """
         # equation 15
-        lhs = Calculate.equation15_barnea1987(alpha_l, x_sqrd)
-        # equation 16
-        rhs = Calculate.equation16_barnea1987(alpha_l, x_sqrd)
-        return lhs - rhs
+        rhs = Calculate.equation15_barnea1987(alpha_l, x_sqrd)
+
+        return y_grav - rhs
 
     def equation15_barnea1987(alpha_l, x_sqrd):
         """
