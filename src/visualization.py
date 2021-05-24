@@ -82,7 +82,7 @@ if __name__ == "__main__":
     )
     gas_temp = Gas(density=1.225, mass_flowrate=gas_massflow, dynamic_viscosity=18.3e-6)
 
-    for inclination in [-90, -80, -30, -1, 0, 1, 30, 80, 90]:
+    for inclination in [-90, -80, -30, -1, 0, 1, 30, 85, 90]:
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.00001)
         categories, overlays = get_categories_maps(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
