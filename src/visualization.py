@@ -68,7 +68,7 @@ if __name__ == "__main__":
     from parse_maps import get_categories_maps
     from conditions import stratified, dispersed_bubbles
 
-    total_mass_flow = 0.01
+    total_mass_flow = 0.001
     quality = 0.001
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality

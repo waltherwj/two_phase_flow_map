@@ -10,7 +10,12 @@ import general
 from fluids import Mix
 
 
-def gas_void_fraction(u_gs, u_ls, critical_value=0.25):
+def gas_void_fraction(u_gs, u_ls, critical_value=0.35):
+    """condition for gas void fraction
+    the realistic gas void fraction is not 0.52,
+    as higher gas void fractions than 0.35 are rare
+    TODO find citation
+    """
     return u_ls > u_gs * (1 - critical_value) / critical_value
 
 

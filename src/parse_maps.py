@@ -37,8 +37,19 @@ def parse_dispersed_bubble(u_gs, u_ls, liquid, gas, pipe):
         u_gs, u_ls, liquid, gas, pipe
     )
 
+    # get the correct locations for the gas void fract map
+    # based on the coalescence map
+
+    # find the maximum u_gs at which we need to
+    # consider both coalescence and void fraction
+    maximum_u_gs = u_gs[coalescence_map & gas_void_frac_dispersed_map].max()
+
     # all locations where dispersed bubbles can exist
-    bubble_map = coalescence_map & gas_void_frac_dispersed_map
+    bubble_map = np.full_like(coalescence_map, False)
+    bubble_map = gas_void_frac_dispersed_map
+    bubble_map[u_gs < maximum_u_gs] = (gas_void_frac_dispersed_map & coalescence_map)[
+        u_gs < maximum_u_gs
+    ]
 
     return bubble_map
 
@@ -95,7 +106,7 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     category_map[bubbly_map & np.isnan(category_map)] = 3
 
     # unphysical conditions are always NaN
-    # category_map[unphysical_map] = np.nan
-    # overlay_map[unphysical_map] = np.nan
+    # category_map[unphysical_map] = -1
+    overlay_map[unphysical_map] = -1
 
     return category_map, overlay_map
