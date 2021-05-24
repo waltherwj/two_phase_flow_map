@@ -15,12 +15,11 @@ def slug_free_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
 
     # calculate the holdup of gas inside of the liquid slug
     # get the mixture values
-    mix = Mix(u_gs, u_ls, liquid, gas, pipe)
-    gas_holdup_in_slug = general.fluid_area_ratio(u_gs, mix, pipe)
+    gas_holdup_in_slug = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
     liquid_holdup = 1 - gas_holdup_in_slug
 
     # the condition
-    return liquid_holdup >= 0.99
+    return liquid_holdup >= 1
 
 
 def slug_full_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
@@ -95,5 +94,12 @@ def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):
     term_2 = (rho_l / sigma) ** (3 / 5)
 
     holdup = 0.058 * (term_1 * term_2 - 0.725) ** 2
+
+    # recuperate the sign that was lost in the maths
+    sign = np.sign(term_1 * term_2 - 0.725)
+
+    # negative holdups do not make sense, but this equation is used in ways
+    # that requires the positive and negative numbers to be available
+    holdup = sign * holdup
 
     return holdup
