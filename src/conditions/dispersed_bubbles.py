@@ -60,6 +60,22 @@ def bubble_coalescence(u_gs, u_ls, liquid, gas, pipe):
     return bubble_crit_diam > rhs
 
 
+def deformed_bubble_critical_size(liquid, gas, pipe):
+    """calculate the critical size of a bubble for it to become deformed
+    eq. 6 Barnea 1987
+    """
+    # local variables for readability
+    rho_l = liquid.density
+    rho_g = gas.density
+    sigma = liquid.bubble_surface_tension
+    grav = pipe.gravity
+
+    # critical bubble size
+    diam_crit_deformed = 2 * np.sqrt(0.4 * sigma / ((rho_l - rho_g) * grav))
+
+    return diam_crit_deformed
+
+
 class Calculate:
     """
     namespace for the methods that perform calculations as opposed to

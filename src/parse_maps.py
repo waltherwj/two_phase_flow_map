@@ -74,7 +74,13 @@ def parse_annular(u_gs, u_ls, liquid, gas, pipe):
     """
     parse the conditions of the annular region
     """
-    annular_map = annular.liquid_stability(u_gs, u_ls, liquid, gas, pipe)
+
+    # get liquid stability condition
+    stability_map = annular.liquid_stability(u_gs, u_ls, liquid, gas, pipe)
+    # get core blockage condition
+    core_not_blocked_map = annular.gas_core_blockage(u_gs, u_ls, liquid, gas, pipe)
+
+    annular_map = stability_map & core_not_blocked_map
 
     return annular_map
 

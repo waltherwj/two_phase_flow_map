@@ -2,6 +2,7 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
+from conditions import annular
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
@@ -94,6 +95,14 @@ if __name__ == "__main__":
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
         )
+        # continuous = annular.gas_core_blockage(
+        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        # )
+        # fig_temp, ax = plot_continuous_symlog(
+        #     continuous,
+        #     x_ticks=ugs_temp[0, :],
+        #     y_ticks=uls_temp[:, 0],
+        # )
         ax.set_title(f"{inclination}")
 
     plt.show(block=True)
