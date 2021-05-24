@@ -155,14 +155,13 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
         category_map[bubbly_map & np.isnan(category_map)] = 4
     else:
         # elongated bubble
-        pass
-    overlay_map[elongated_bubble_map] = 5
+        category_map[elongated_bubble_map & np.isnan(category_map)] = 5
 
     # slug flow
     category_map[~churn_map & np.isnan(category_map)] = 6
 
     # churn flow
-    # overlay_map[churn_map] = 7
+    category_map[churn_map & np.isnan(category_map)] = 7
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = -1

@@ -14,7 +14,6 @@ def slug_free_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
     """condition for if liquid slug is free of entrained bubbles"""
 
     # calculate the holdup of gas inside of the liquid slug
-    # get the mixture values
     gas_holdup_in_slug = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
     liquid_holdup = 1 - gas_holdup_in_slug
 
@@ -27,12 +26,7 @@ def slug_full_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
     of entrained bubbles where the slug collapses
     """
     # calculate the holdup of gas inside of the liquid slug
-    initial_holdup = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
-    gas_holdup_in_slug = newton(
-        solve_for_slug_holdup, initial_holdup, args=(u_gs, u_ls, liquid, gas, pipe)
-    )
-    liquid_holdup = 1 - gas_holdup_in_slug
-
+    gas_holdup_in_slug = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
     liquid_holdup = 1 - gas_holdup_in_slug
 
     # the condition
