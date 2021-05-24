@@ -40,7 +40,9 @@ def niazkar_and_churchill(reynolds, roughness):
     turbulent = reynolds > 2300
     friction = np.full_like(reynolds, np.nan)
     friction[turbulent] = niazkar(reynolds[turbulent], roughness)
-    friction[~turbulent] = churchill(reynolds[~turbulent], roughness)
+    friction[~turbulent | np.isnan(friction)] = churchill(
+        reynolds[~turbulent | np.isnan(friction)], roughness
+    )
     # in case it still has nans, apply laminar approximation
     friction[np.isnan(friction)] = 64 / reynolds[np.isnan(friction)]
 

@@ -154,7 +154,7 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     category_map[bubbly_map & np.isnan(category_map)] = 4
 
     # elongated bubble
-    category_map[elongated_bubble_map] = 1
+    category_map[elongated_bubble_map & np.isnan(category_map)] = 5
 
     # slug flow
     # overlay_map[slug_map] = 2

@@ -16,7 +16,7 @@ def slug_free_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
     liquid_holdup = 1 - gas_holdup_in_slug
 
     # the condition
-    return liquid_holdup >= 1
+    return liquid_holdup <= 1
 
 
 def slug_full_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
