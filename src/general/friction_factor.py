@@ -31,6 +31,22 @@ def laminar(reynolds):
     return reynolds / 64
 
 
+def niazkar_and_churchill(reynolds, roughness):
+    """
+    combines churchill's and niazkar model for locations where niazkar fails
+    or where it is invalid
+    """
+    reynolds = np.array(reynolds)
+    turbulent = reynolds > 2300
+    friction = np.full_like(reynolds, np.nan)
+    friction[turbulent] = niazkar(reynolds[turbulent], roughness)
+    friction[~turbulent] = churchill(reynolds[~turbulent], roughness)
+    # in case it still has nans, apply laminar approximation
+    friction[np.isnan(friction)] = 64 / reynolds[np.isnan(friction)]
+
+    return friction
+
+
 def turb_swamee(reynolds, roughness):
     """
     Model: Swamee, Jain
@@ -60,6 +76,39 @@ def bnt(reynolds, roughness):
         (64 / reynolds) ** param_a
         * (0.75 * np.log(reynolds / 5.37)) ** exponent_a
         * (0.88 * np.log(6.82 * inv_roughness)) ** exponent_b
+    )
+    return friction
+
+
+def niazkar(reynolds, roughness):
+    """
+    Model: Niazkar
+    Year: 2019
+    https://www.mdpi.com/2227-7390/8/5/796/htm
+    Suitable Range:
+        turbulent
+    """
+    a = -2 * np.log10(roughness / 3.7 + 4.5547 / (reynolds ** 0.08784))
+    b = -2 * np.log10(roughness / 3.7 + 2.51 * a / reynolds)
+    c = -2 * np.log10(roughness / 3.7 + 2.51 * b / reynolds)
+    inv_sqrt_f = a - ((b - a) ** 2) / (c - 2 * b + a)
+
+    friction = 1 / (inv_sqrt_f ** 2)
+
+    return friction
+
+
+def churchill(reynolds, roughness):
+    """
+    Model: Churchill 1977
+    Suitable Range:
+        Any
+    """
+    theta_1 = (-2.457 * np.log(((7 / reynolds) ** 0.9) + 0.27 * roughness)) ** 16
+    theta_2 = (37530 / reynolds) ** 16
+
+    friction = 8 * (((8 / reynolds) ** 12) + ((theta_1 + theta_2) ** (-1.5))) ** (
+        1 / 12
     )
     return friction
 
@@ -147,6 +196,9 @@ if __name__ == "__main__":
     factors.append(["turb_swamee", turb_swamee(reynolds, roughness)])
     factors.append(["bnt", bnt(reynolds, roughness)])
     factors.append(["fng", fang(reynolds, roughness)])
+    factors.append(["niazkar", niazkar(reynolds, roughness)])
+    factors.append(["churchill", churchill(reynolds, roughness)])
+    factors.append(["nzkrchr", niazkar_and_churchill(reynolds, roughness)])
     factors.append(["cfng", laminar_and_fang(reynolds, roughness)])
     factors.append(["ak", ak(reynolds, roughness)])
     factors.append(["bkc", bkc(reynolds, roughness)])

@@ -64,7 +64,7 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
 
 if __name__ == "__main__":
     import numpy as np
-    from generate_maps import generate_velocity_maps
+    from generate_data import generate_velocity_maps
     from fluids import Liquid, Gas, Pipe
     from parse_maps import get_categories_maps
     from conditions import stratified, dispersed_bubbles

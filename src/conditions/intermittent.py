@@ -8,7 +8,30 @@ from general import friction_factor
 from .dispersed_bubbles import deformed_bubble_critical_size
 
 
-def slug_liquid_holdup(u_gs, u_ls, liquid, gas, pipe):
+def slug_free_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
+    """condition for if liquid slug is freee of entrained bubbles"""
+
+    # calculate the holdup of gas inside of the liquid slug
+    gas_holdup_in_slug = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
+    liquid_holdup = 1 - gas_holdup_in_slug
+
+    # the condition
+    return liquid_holdup >= 1
+
+
+def slug_full_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
+    """condition for if liquid slug is at the maximum packing of
+    of entrained bubbles where the slug collapses
+    """
+    # calculate the holdup of gas inside of the liquid slug
+    gas_holdup_in_slug = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
+    liquid_holdup = 1 - gas_holdup_in_slug
+
+    # the condition
+    return liquid_holdup >= 0.48
+
+
+def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):
     """
     calculate the slug holdup based on mixed properties
     Barnea 1987

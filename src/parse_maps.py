@@ -3,7 +3,14 @@ This module dictates how all the maps interact and which ones
 are valid at a certain map location
 """
 import numpy as np
-from conditions import annular, bubbly, dispersed_bubbles, stratified, unphysical
+from conditions import (
+    annular,
+    bubbly,
+    dispersed_bubbles,
+    stratified,
+    intermittent,
+    unphysical,
+)
 
 
 def parse_bubbly(u_gs, u_ls, liquid, gas, pipe):
@@ -85,6 +92,28 @@ def parse_annular(u_gs, u_ls, liquid, gas, pipe):
     return annular_map
 
 
+def parse_elongated_bubble(u_gs, u_ls, liquid, gas, pipe):
+    """
+    parse the elongated bubble condition map
+    """
+    elongated_bubble_map = intermittent.slug_free_of_bubbles(
+        u_gs, u_ls, liquid, gas, pipe
+    )
+
+    return elongated_bubble_map
+
+
+def parse_slug(u_gs, u_ls, liquid, gas, pipe):
+    """
+    parse the slug flow condition condition map
+    """
+    elongated_bubble_map = intermittent.slug_full_of_bubbles(
+        u_gs, u_ls, liquid, gas, pipe
+    )
+
+    return elongated_bubble_map
+
+
 def parse_unphysical(u_gs, u_ls, liquid, gas, pipe):
     """
     parse the unphysical condition maps
@@ -103,6 +132,8 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     bubble_map = parse_dispersed_bubble(u_gs, u_ls, liquid, gas, pipe)
     stratified_map = parse_stratified(u_gs, u_ls, liquid, gas, pipe)
     annular_map = parse_annular(u_gs, u_ls, liquid, gas, pipe)
+    elongated_bubble_map = parse_elongated_bubble(u_gs, u_ls, liquid, gas, pipe)
+    slug_map = parse_slug(u_gs, u_ls, liquid, gas, pipe)
     unphysical_map = parse_unphysical(u_gs, u_ls, liquid, gas, pipe)
 
     # initialize a map with all zeros. Some maps are overlays on the actual map
@@ -121,6 +152,12 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
 
     # if bubbly is possible and it is not anything else, it is bubbly (not true but for now)
     category_map[bubbly_map & np.isnan(category_map)] = 4
+
+    # elongated bubble
+    category_map[elongated_bubble_map] = 1
+
+    # slug flow
+    # overlay_map[slug_map] = 2
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = -1
