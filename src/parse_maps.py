@@ -65,7 +65,7 @@ def parse_unphysical(u_gs, u_ls, liquid, gas, pipe):
     return impossible_holdup_map
 
 
-def get_categories_map(u_gs, u_ls, liquid, gas, pipe):
+def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     """
     calls the other parsing functions to combine all parses into one
     comprehensive map
@@ -75,23 +75,22 @@ def get_categories_map(u_gs, u_ls, liquid, gas, pipe):
     stratified_map = parse_stratified(u_gs, u_ls, liquid, gas, pipe)
     unphysical_map = parse_unphysical(u_gs, u_ls, liquid, gas, pipe)
 
-    # initialize a map with all zeros
-    category_map = np.zeros_like(unphysical_map, dtype=np.float32)
+    # initialize a map with all zeros. Some maps are overlays on the actual map
+    category_map = np.full_like(u_ls, np.nan)
+    overlay_map = np.full_like(u_ls, np.nan)
     # colors will correspond to these numbers
 
-    # if bubbly is true, dispersed bubble isn't
-    if np.any(bubbly_map):
-        bubble_map = bubbly_map
-        category_map[bubbly_map] = 2
-    else:
-        category_map[bubble_map] = 1
+    # dispersed bubble is true regardless of other conditions, so goes on the overlay map
+    overlay_map[bubble_map] = 1
 
-    # stratified superseeds bubbles according to the maps
-    # barnea's paper algorithm sees to say the opposite,
-    # but maybe they were just bad at algorithms back then
-    category_map[stratified_map] = 3
+    # stratified if it is stratified
+    category_map[stratified_map] = 1
+
+    # if bubbly is possible and it is not anything else, it is bubbly (not true but for now)
+    category_map[bubbly_map & np.isnan(category_map)] = 2
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = np.nan
+    # overlay_map[unphysical_map] = np.nan
 
-    return category_map
+    return category_map, overlay_map
