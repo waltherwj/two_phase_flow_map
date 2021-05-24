@@ -81,6 +81,46 @@ def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
     return gas_term - liq_term - grav_term > 0
 
 
+def too_steep_for_stratified(u_gs, u_ls, liquid, gas, pipe):
+    """
+    check if the liquid velocity is so high that in steep inclination it
+    ends up tearing droplets apart from the wavy turbulent interface resulting
+    in annular flow
+    Barnea 1987 eq 13-14
+    """
+    rho_l = liquid.density
+    mu_l = liquid.dynamic_viscosity
+    roughness = pipe.roughness
+    grav = pipe.gravity
+    beta = pipe.inclination
+
+    # Set inital guess that solves from the top
+    # the solution space is difficult
+    # TODO find how to set a good initial guess
+    height_initial = np.ones_like(u_gs) * 0.95
+    # the critical heights at which waves would start to grow
+    height_tilde = newton(
+        Calculate.wave_growth, height_initial, args=(u_gs, liquid, gas, pipe)
+    )
+    # dimensional
+    geom = Geometry(
+        height_tilde, non_dimensional=False, pipe=pipe, u_gs=u_gs, u_ls=u_ls
+    )
+
+    # right hand side
+    # get the actual fluid average reynolds and related frtiction factor
+    reynolds_l_actual = rho_l * geom.vel_l * geom.hydr_diam_l / mu_l
+    friction_l = friction_factor.fang(reynolds_l_actual, roughness)
+
+    rhs = grav * pipe.diameter * (1 - height_tilde) * np.cos(beta) / friction_l
+
+    # left hand side with actual fluid velocity
+    lhs = geom.vel_l ** 2
+
+    # the condition
+    return lhs > rhs
+
+
 class Calculate:
     """
     namespace for the methods that perform calculations as opposed to

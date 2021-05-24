@@ -52,7 +52,12 @@ def parse_stratified(u_gs, u_ls, liquid, gas, pipe):
         u_gs, u_ls, liquid, gas, pipe
     )
 
-    stratified_map = stratified_equilibrium_map
+    # get the condition of transition into annular
+    not_too_steep_map = ~stratified.too_steep_for_stratified(
+        u_gs, u_ls, liquid, gas, pipe
+    )
+
+    stratified_map = stratified_equilibrium_map & not_too_steep_map
     return stratified_map
 
 
