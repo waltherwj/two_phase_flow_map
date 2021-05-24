@@ -103,7 +103,7 @@ def parse_elongated_bubble(u_gs, u_ls, liquid, gas, pipe):
     return elongated_bubble_map
 
 
-def parse_slug(u_gs, u_ls, liquid, gas, pipe):
+def parse_churn(u_gs, u_ls, liquid, gas, pipe):
     """
     parse the slug flow condition condition map
     """
@@ -133,7 +133,7 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     stratified_map = parse_stratified(u_gs, u_ls, liquid, gas, pipe)
     annular_map = parse_annular(u_gs, u_ls, liquid, gas, pipe)
     elongated_bubble_map = parse_elongated_bubble(u_gs, u_ls, liquid, gas, pipe)
-    slug_map = parse_slug(u_gs, u_ls, liquid, gas, pipe)
+    churn_map = parse_churn(u_gs, u_ls, liquid, gas, pipe)
     unphysical_map = parse_unphysical(u_gs, u_ls, liquid, gas, pipe)
 
     # initialize a map with all zeros. Some maps are overlays on the actual map
@@ -150,14 +150,18 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     # annular
     category_map[annular_map & np.isnan(category_map)] = 3
 
-    # if bubbly is possible and it is not anything else, it is bubbly (not true but for now)
-    category_map[bubbly_map & np.isnan(category_map)] = 4
-
-    # elongated bubble
-    category_map[elongated_bubble_map & np.isnan(category_map)] = 5
+    # if bubbly is possible and it then it is not an elongated bubble
+    if np.any(bubbly_map):
+        category_map[bubbly_map & np.isnan(category_map)] = 4
+    else:
+        # elongated bubble
+        category_map[elongated_bubble_map & np.isnan(category_map)] = 5
 
     # slug flow
-    # overlay_map[slug_map] = 2
+    category_map[~churn_map & np.isnan(category_map)] = 6
+
+    # churn flow
+    category_map[churn_map & np.isnan(category_map)] = 7
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = -1

@@ -2,6 +2,7 @@
 the functions that define the conditions for flow to be considered
 intermittent flow
 """
+import numpy as np
 from fluids import Mix
 import general
 from general import friction_factor
@@ -25,10 +26,17 @@ def slug_full_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
     """
     # calculate the holdup of gas inside of the liquid slug
     gas_holdup_in_slug = liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe)
-    liquid_holdup = 1 - gas_holdup_in_slug
+
+    # gas holdup in mixed flow
+    gas_holdup_in_flow = u_gs / (u_ls + u_gs)
+
+    # the holdup is the largest of the two
+    gas_holdup = np.minimum(gas_holdup_in_slug, gas_holdup_in_flow)
+
+    liquid_holdup = 1 - gas_holdup
 
     # the condition
-    return liquid_holdup >= 0.48
+    return liquid_holdup <= 0.48
 
 
 def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):
@@ -55,7 +63,7 @@ def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):
 
     # the expression split in terms for readability
     term_1 = critical_diam * (2 * fric_mix * (u_mix ** 3) / diam) ** (2 / 5)
-    term_2 = (rho_l / sigma) ** (3 / 5)
+    term_2 = (mix.density / sigma) ** (3 / 5)
 
     holdup = 0.058 * (term_1 * term_2 - 0.725) ** 2
 

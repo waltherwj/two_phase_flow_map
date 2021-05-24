@@ -72,7 +72,10 @@ class Mix:
 
         # get the area ratios corresponding to superficial velocity values
         gas_area_ratio = u_gs / self.mixture_velocity(u_gs, u_ls)
-        liq_area_ratio = 1 - u_gs
+        liq_area_ratio = 1 - gas_area_ratio
+
+        # get rid of nonsensical values
+        # gas_area_ratio[]
 
         # get the equivalent mixture density
         rho_mix = gas_area_ratio * rho_g + liq_area_ratio * rho_l

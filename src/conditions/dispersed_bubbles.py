@@ -48,7 +48,7 @@ def bubble_coalescence(u_gs, u_ls, liquid, gas, pipe):
     reynolds_mix = general.reynolds(u_mix, mix, pipe)
 
     # mixture friction factor
-    fric_mix = friction_factor.niazkar_and_churchill(reynolds_mix, roughness)
+    fric_mix = friction_factor.fang(reynolds_mix, roughness)
 
     # get the terms for readability
     rhs_1 = 0.725 + 4.15 * np.sqrt(u_gs / u_mix)
@@ -121,7 +121,7 @@ class Calculate:
         reynolds_mix = general.reynolds(u_mix, mix, pipe)
 
         # mixture friction factor
-        friction_mix = friction_factor.niazkar_and_churchill(reynolds_mix, roughness)
+        friction_mix = friction_factor.fang(reynolds_mix, roughness)
 
         # critical bubble size
         diam_crit_migration = (
