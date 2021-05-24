@@ -10,7 +10,7 @@ import general
 from fluids import Mix
 
 
-def gas_void_fraction(u_gs, u_ls, critical_value=0.52):
+def gas_void_fraction(u_gs, u_ls, critical_value=0.25):
     return u_ls > u_gs * (1 - critical_value) / critical_value
 
 
@@ -46,13 +46,14 @@ def bubble_coalescence(u_gs, u_ls, liquid, gas, pipe):
     fric_mix = friction_factor.fang(reynolds_mix, roughness)
 
     # get the terms for readability
+    # gas_area_ratio = fluid_area_ratio(u_gs, self.gas, self.pipe)
     rhs_1 = 0.725 + 4.15 * np.sqrt(u_gs / u_mix)
     rhs_2 = (sigma / rho_l) ** (3 / 5)
     rhs_3 = ((2 * fric_mix / diam) * (u_mix ** 3)) ** (-2 / 5)
     rhs = rhs_1 * rhs_2 * rhs_3
 
     # check if the bubbles are few/small enough that they won't coalesce
-    return bubble_crit_diam < rhs
+    return bubble_crit_diam > rhs
 
 
 class Calculate:
