@@ -2,13 +2,10 @@
 the functions that define the conditions for flow to be considered
 stratified flow
 """
-from operator import ne
 import numpy as np
-from scipy.optimize import newton, root
-import general
+from scipy.optimize import newton
 from general.general import Geometry
 from general import friction_factor, non_dimensional
-from config import Config
 
 
 def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):

@@ -3,7 +3,7 @@ This module dictates how all the maps interact and which ones
 are valid at a certain map location
 """
 import numpy as np
-from conditions import dispersed_bubbles
+from conditions import dispersed_bubbles, stratified
 from conditions import bubbly
 from conditions import unphysical
 
@@ -43,6 +43,19 @@ def parse_dispersed_bubble(u_gs, u_ls, liquid, gas, pipe):
     return bubble_map
 
 
+def parse_stratified(u_gs, u_ls, liquid, gas, pipe):
+    """
+    parse the conditions of the stratified region
+    """
+    # get stratified condition region
+    stratified_equilibrium_map = stratified.equilibrium_equation(
+        u_gs, u_ls, liquid, gas, pipe
+    )
+
+    stratified_map = stratified_equilibrium_map
+    return stratified_map
+
+
 def parse_unphysical(u_gs, u_ls, liquid, gas, pipe):
     """
     parse the unphysical condition maps
@@ -59,6 +72,7 @@ def get_categories_map(u_gs, u_ls, liquid, gas, pipe):
     """
     bubbly_map = parse_bubbly(u_gs, u_ls, liquid, gas, pipe)
     bubble_map = parse_dispersed_bubble(u_gs, u_ls, liquid, gas, pipe)
+    stratified_map = parse_stratified(u_gs, u_ls, liquid, gas, pipe)
     unphysical_map = parse_unphysical(u_gs, u_ls, liquid, gas, pipe)
 
     # initialize a map with all zeros
@@ -67,9 +81,15 @@ def get_categories_map(u_gs, u_ls, liquid, gas, pipe):
 
     # if bubbly is true, dispersed bubble isn't
     if np.any(bubbly_map):
+        bubble_map = bubbly_map
         category_map[bubbly_map] = 2
     else:
         category_map[bubble_map] = 1
+
+    # stratified superseeds bubbles according to the maps
+    # barnea's paper algorithm sees to say the opposite,
+    # but maybe they were just bad at algorithms back then
+    category_map[stratified_map] = 3
 
     # unphysical conditions are always NaN
     # category_map[unphysical_map] = np.nan

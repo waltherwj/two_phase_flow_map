@@ -81,12 +81,12 @@ if __name__ == "__main__":
 
     for inclination in [-90, -80, -30, -1, 0, 1, 30, 80, 90]:
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.00001)
-        # parsed_map = get_categories_map(
-        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        # )
-        parsed_map = stratified.equilibrium_equation(
+        parsed_map = get_categories_map(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
+        # parsed_map = stratified.equilibrium_equation(
+        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
+        # )
 
         # wave_map = stratified.wave_growth(
         #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
@@ -100,6 +100,5 @@ if __name__ == "__main__":
             y_ticks=uls_temp[:, 0],
         )
         ax.set_title(f"{inclination}")
-        plt.show(block=False)
 
     plt.show(block=True)
