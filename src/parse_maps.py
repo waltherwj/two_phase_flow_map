@@ -38,7 +38,7 @@ def parse_dispersed_bubble(u_gs, u_ls, liquid, gas, pipe):
     )
 
     # all locations where dispersed bubbles can exist
-    bubble_map = coalescence_map & (gas_void_frac_dispersed_map)
+    bubble_map = coalescence_map & gas_void_frac_dispersed_map
 
     return bubble_map
 

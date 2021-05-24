@@ -69,7 +69,7 @@ if __name__ == "__main__":
     from conditions import stratified, dispersed_bubbles
 
     total_mass_flow = 0.01
-    quality = 0.01
+    quality = 0.001
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality
 

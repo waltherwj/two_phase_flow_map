@@ -46,7 +46,6 @@ def bubble_coalescence(u_gs, u_ls, liquid, gas, pipe):
     fric_mix = friction_factor.fang(reynolds_mix, roughness)
 
     # get the terms for readability
-    # gas_area_ratio = fluid_area_ratio(u_gs, self.gas, self.pipe)
     rhs_1 = 0.725 + 4.15 * np.sqrt(u_gs / u_mix)
     rhs_2 = (sigma / rho_l) ** (3 / 5)
     rhs_3 = ((2 * fric_mix / diam) * (u_mix ** 3)) ** (-2 / 5)
