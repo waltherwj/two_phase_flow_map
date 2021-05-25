@@ -48,7 +48,7 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
         axs.pcolormesh(category_map)
     else:
         c = axs.pcolormesh(
-            x_ticks, y_ticks, category_map, shading="gouraud", cmap="tab10", alpha=0.9
+            x_ticks, y_ticks, category_map, shading="gouraud", cmap="Set1", alpha=0.9
         )
         fig.colorbar(c)
         axs.pcolormesh(

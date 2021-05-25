@@ -3,6 +3,7 @@ and are used by several different other modules
 """
 from . import non_dimensional, friction_factor
 import numpy as np
+from scipy.optimize import newton
 
 
 def fluid_area_ratio(velocity, fluid, pipe):
@@ -60,6 +61,7 @@ class Geometry:
         # areas
         self.area_l = self.area_liq() * diam ** 2
         self.area_g = self.area_gas() * diam ** 2
+        self.area_pipe = (np.pi / 4) * diam ** 2
         # perimeters
         self.perim_l = self.perimeter_liq() * diam
         self.perim_g = self.perimeter_gas() * diam
@@ -162,7 +164,7 @@ def sagitta_absolute_height(velocity, fluid, pipe):
     radius = pipe.diameter / 2
 
     # calculate the area ratio the fluid occupies
-    area_ratio = general.fluid_area_ratio(velocity, fluid, pipe)
+    area_ratio = fluid_area_ratio(velocity, fluid, pipe)
     valid_mask = (area_ratio < 1) & (area_ratio > 0)
 
     # calculate the absolute area that corresponds to this
