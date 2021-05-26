@@ -5,6 +5,7 @@ and the velocity maps
 
 
 import numpy as np
+from numpy.core.numeric import full_like
 from config import Config
 from scipy.signal import convolve
 
@@ -48,12 +49,18 @@ def detect_edges(parsed_map, kernel=None):
             [
                 [0, 0, -1, 0, 0],
                 [0, 0, -1, 0, 0],
-                [-1, -1, 8, -1, -1],
+                [-1, -1, 9, -1, -1],
                 [0, 0, -1, 0, 0],
                 [0, 0, -1, 0, 0],
             ]
         )
 
-    edge_map = np.abs(convolve(parsed_map, kernel, mode="same"))
+    # edges in the x direction
+    edges_x = np.diff(parsed_map, axis=0, prepend=parsed_map[:1, :])
+    edges_y = np.diff(parsed_map, axis=1, append=parsed_map[:, -1:])
 
-    return edge_map
+    edges_map = ((edges_x + edges_y) != 0).astype(float)
+    # edge_map = np.abs(convolve(parsed_map, kernel, mode="same"))
+    # edge_map[edge_map < 1] = 1
+
+    return edges_map
