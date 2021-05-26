@@ -2,7 +2,7 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
-from generate_data import generate_probability_map
+from generate_data import generate_probability_map, refine_velocity_maps
 from conditions import annular
 import matplotlib.pyplot as plt
 import matplotlib.colors
@@ -65,7 +65,7 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
 
 if __name__ == "__main__":
     import numpy as np
-    from generate_data import generate_velocity_maps, detect_edges
+    from generate_data import generate_velocity_maps, detect_edges, refine_velocity_maps
     from fluids import Liquid, Gas, Pipe
     from parse_maps import get_categories_maps
     from conditions import stratified, dispersed_bubbles
@@ -96,15 +96,19 @@ if __name__ == "__main__":
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
         )
-        continuous = detect_edges(categories)
-        continuous, ugs_array, uls_array = generate_probability_map(
-            continuous, ugs_temp, uls_temp
-        )
-        fig_temp, ax = plot_continuous_symlog(
-            continuous,
-            ugs_array,
-            uls_array,
-        )
-        ax.set_title(f"{inclination}")
+        # continuous = detect_edges(categories)
+        # continuous, ugs_array, uls_array = generate_probability_map(
+        #     continuous, ugs_temp, uls_temp
+        # )
+        # fig_temp, ax = plot_continuous_symlog(
+        #     continuous,
+        #     ugs_array,
+        #     uls_array,
+        # )
+        # ax.set_title(f"{inclination}")
 
-    plt.show(block=True)
+        u_gs_refined_temp, u_ls_refined_temp = refine_velocity_maps(
+            categories, ugs_temp, uls_temp
+        )
+
+        plt.show(block=True)

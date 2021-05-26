@@ -13,7 +13,7 @@ from scipy.ndimage import gaussian_filter
 
 
 def generate_velocity_maps(
-    datapoints=Config.NUMBER_DATAPOINTS,
+    datapoints=Config.NUMBER_ROUGH_DATAPOINTS,
     min_u_ls=Config.MIN_ULS,
     max_u_ls=Config.MAX_ULS,
     min_u_gs=Config.MIN_UGS,
@@ -34,10 +34,40 @@ def generate_velocity_maps(
     return u_gs_map, u_ls_map
 
 
-def refine_velocity_maps(rough_map, u_gs, u_ls):
+def refine_velocity_maps(
+    rough_map,
+    u_gs,
+    u_ls,
+    refined_datapoints=Config.NUMBER_REFINED_DATAPOINTS,
+    sigma=3,
+    upscale=10,
+):
     """get a new velocity map which takes into account the edges of the
     rough map
     """
+    # detect the edges of the rough map
+    edges_map = detect_edges(rough_map)
+
+    # get map with the probability distribution and u_gs and u_ls maps
+    # to sample from
+    probability_map, u_gs_sample, u_ls_sample = generate_probability_map(
+        edges_map, u_gs, u_ls, sigma, upscale
+    )
+    # tile them up in the correct dimension
+    u_gs_map = np.tile(u_gs_sample, (u_gs_sample.size, 1))
+    u_ls_map = np.tile(u_ls_sample, (u_ls_sample.size, 1)).T
+
+    # get the random sample of indexes using the probability map
+    indexes_to_choose = np.arange(probability_map.size)
+    indexes = np.random.choice(
+        indexes_to_choose,
+        size=refined_datapoints ** 2,
+        replace=False,
+        p=probability_map.ravel(),
+    )
+    u_gs_refined = u_gs_map[indexes]
+    u_ls_refined = u_ls_map[indexes]
+
     return u_gs_refined, u_ls_refined
 
 
