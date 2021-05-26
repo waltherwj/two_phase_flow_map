@@ -25,7 +25,7 @@ def plot_continuous_symlog(array_map, x_ticks=None, y_ticks=None, thresh=1e-5):
             x_ticks,
             y_ticks,
             array_map,
-            norm=matplotlib.colors.LogNorm(thresh),
+            # norm=matplotlib.colors.LogNorm(thresh),
             shading="nearest",
         )
         fig.colorbar(c)

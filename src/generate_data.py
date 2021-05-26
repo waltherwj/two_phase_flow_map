@@ -7,6 +7,7 @@ and the velocity maps
 import numpy as np
 from numpy.core.numeric import full_like
 from config import Config
+from scipy import interpolate
 from scipy.signal import convolve
 from scipy.ndimage import gaussian_filter
 
@@ -37,7 +38,7 @@ def refine_velocity_maps(rough_map, u_gs, u_ls):
     """get a new velocity map which takes into account the edges of the
     rough map
     """
-    pass
+    return u_gs_refined, u_ls_refined
 
 
 def detect_edges(parsed_map):
@@ -57,13 +58,35 @@ def detect_edges(parsed_map):
     return edges_map
 
 
-def generate_probability_map(edges_map):
-    """generate a probability distribution for points
-    that has a high likelihood of putting points close to the
-    edges
+def generate_probability_map(edges_map, u_gs, u_ls, sigma=3, upsample=10):
+    """generate a probability distribution for points,
+    with a high likelihood of putting points close to the
+    edges.
+    The upsample disctates how fine the probability distribution
+    will be. The actual probability distribution is a discrete pdf,
+    but the higher the number of points the more it looks like a continuous pdf
     """
 
     # first smooth out the edges
-    probability_map = gaussian_filter(edges_map, sigma=3)
+    probability_map = gaussian_filter(edges_map, sigma=sigma)
+
+    # create an interpolation function with it
+    size_x = probability_map.size[0]
+    size_y = probability_map.size[1]
+    x_initial = np.arange(size_x)
+    y_initial = np.arange(size_y)
+    interpolation_function = interpolate.interp2d(
+        x_initial, y_initial, z=probability_map
+    )
+
+    # create new vectors with the same range but more points
+    x_new = np.linspace(start=0, stop=size_x, num=size_x * upsample)
+    y_new = np.linspace(start=0, stop=size_y, num=size_y * upsample)
+
+    # upsample the probability map
+    probability_map = interpolation_function(x_new, y_new)
+
+    # normalize it so that it sums to 1
+    probability_map /= np.abs(probability_map).sum()
 
     return probability_map
