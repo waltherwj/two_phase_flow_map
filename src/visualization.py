@@ -2,6 +2,7 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
+from generate_data import generate_probability_map
 from conditions import annular
 import matplotlib.pyplot as plt
 import matplotlib.colors
@@ -96,6 +97,7 @@ if __name__ == "__main__":
             y_ticks=uls_temp[:, 0],
         )
         continuous = detect_edges(categories)
+        continuous = generate_probability_map(continuous)
         fig_temp, ax = plot_continuous_symlog(
             continuous,
             x_ticks=ugs_temp[0, :],

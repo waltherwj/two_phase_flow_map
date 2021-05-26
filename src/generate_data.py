@@ -8,6 +8,7 @@ import numpy as np
 from numpy.core.numeric import full_like
 from config import Config
 from scipy.signal import convolve
+from scipy.ndimage import gaussian_filter
 
 
 def generate_velocity_maps(
@@ -39,28 +40,30 @@ def refine_velocity_maps(rough_map, u_gs, u_ls):
     pass
 
 
-def detect_edges(parsed_map, kernel=None):
+def detect_edges(parsed_map):
     """get the edge map using the fact that each area is a well defined
     single value section
     """
-    if kernel is None:
-        # standard kernel
-        kernel = np.array(
-            [
-                [0, 0, -1, 0, 0],
-                [0, 0, -1, 0, 0],
-                [-1, -1, 9, -1, -1],
-                [0, 0, -1, 0, 0],
-                [0, 0, -1, 0, 0],
-            ]
-        )
 
     # edges in the x direction
     edges_x = np.diff(parsed_map, axis=0, prepend=parsed_map[:1, :])
-    edges_y = np.diff(parsed_map, axis=1, append=parsed_map[:, -1:])
+    # edges in the y direction
+    edges_y = np.diff(parsed_map, axis=1, prepend=parsed_map[:, :1])
 
-    edges_map = ((edges_x + edges_y) != 0).astype(float)
+    edges_map = ((edges_x != 0) | (edges_y != 0)).astype(float)
     # edge_map = np.abs(convolve(parsed_map, kernel, mode="same"))
     # edge_map[edge_map < 1] = 1
 
     return edges_map
+
+
+def generate_probability_map(edges_map):
+    """generate a probability distribution for points
+    that has a high likelihood of putting points close to the
+    edges
+    """
+
+    # first smooth out the edges
+    probability_map = gaussian_filter(edges_map, sigma=3)
+
+    return probability_map
