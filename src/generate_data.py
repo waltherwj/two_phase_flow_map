@@ -71,11 +71,11 @@ def generate_probability_map(edges_map, u_gs, u_ls, sigma=3, upsample=10):
     probability_map = gaussian_filter(edges_map, sigma=sigma)
 
     # create an interpolation function with it
-    size_x = probability_map.size[0]
-    size_y = probability_map.size[1]
+    size_x = probability_map.shape[0]
+    size_y = probability_map.shape[1]
     x_initial = np.arange(size_x)
     y_initial = np.arange(size_y)
-    interpolation_function = interpolate.interp2d(
+    interpolation_function = interpolate.RectBivariateSpline(
         x_initial, y_initial, z=probability_map
     )
 
@@ -86,7 +86,12 @@ def generate_probability_map(edges_map, u_gs, u_ls, sigma=3, upsample=10):
     # upsample the probability map
     probability_map = interpolation_function(x_new, y_new)
 
+    # upsample the u_gs and u_ls arrays
+    # create the arrays
+    u_gs_array = np.geomspace(u_gs.min(), u_gs.max(), num=size_x * upsample)
+    u_ls_array = np.geomspace(u_ls.min(), u_ls.max(), num=size_y * upsample)
+
     # normalize it so that it sums to 1
     probability_map /= np.abs(probability_map).sum()
 
-    return probability_map
+    return probability_map, u_gs_array, u_ls_array

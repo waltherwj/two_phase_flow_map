@@ -9,7 +9,7 @@ class Config:
     class for a namespace of the configs
     """
 
-    NUMBER_DATAPOINTS = 150
+    NUMBER_DATAPOINTS = 50
     MIN_ULS = 1e-3
     MAX_ULS = 1e1
     MIN_UGS = 1e-2

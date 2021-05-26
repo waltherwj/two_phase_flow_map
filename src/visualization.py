@@ -97,11 +97,13 @@ if __name__ == "__main__":
             y_ticks=uls_temp[:, 0],
         )
         continuous = detect_edges(categories)
-        continuous = generate_probability_map(continuous)
+        continuous, ugs_array, uls_array = generate_probability_map(
+            continuous, ugs_temp, uls_temp
+        )
         fig_temp, ax = plot_continuous_symlog(
             continuous,
-            x_ticks=ugs_temp[0, :],
-            y_ticks=uls_temp[:, 0],
+            ugs_array,
+            uls_array,
         )
         ax.set_title(f"{inclination}")
 
