@@ -6,6 +6,7 @@ and the velocity maps
 
 import numpy as np
 from config import Config
+from scipy.signal import convolve
 
 
 def generate_velocity_maps(
@@ -28,3 +29,31 @@ def generate_velocity_maps(
     u_ls_map = np.tile(u_ls_array, (datapoints, 1)).T
 
     return u_gs_map, u_ls_map
+
+
+def refine_velocity_maps(rough_map, u_gs, u_ls):
+    """get a new velocity map which takes into account the edges of the
+    rough map
+    """
+    pass
+
+
+def detect_edges(parsed_map, kernel=None):
+    """get the edge map using the fact that each area is a well defined
+    single value section
+    """
+    if kernel is None:
+        # standard kernel
+        kernel = np.array(
+            [
+                [0, 0, -1, 0, 0],
+                [0, 0, -1, 0, 0],
+                [-1, -1, 8, -1, -1],
+                [0, 0, -1, 0, 0],
+                [0, 0, -1, 0, 0],
+            ]
+        )
+
+    edge_map = np.abs(convolve(parsed_map, kernel, mode="same"))
+
+    return edge_map

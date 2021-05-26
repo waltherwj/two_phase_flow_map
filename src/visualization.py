@@ -24,7 +24,7 @@ def plot_continuous_symlog(array_map, x_ticks=None, y_ticks=None, thresh=1e-5):
             x_ticks,
             y_ticks,
             array_map,
-            norm=matplotlib.colors.SymLogNorm(thresh),
+            # norm=matplotlib.colors.SymLogNorm(thresh),
             shading="nearest",
         )
         fig.colorbar(c)
@@ -64,7 +64,7 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
 
 if __name__ == "__main__":
     import numpy as np
-    from generate_data import generate_velocity_maps
+    from generate_data import generate_velocity_maps, detect_edges
     from fluids import Liquid, Gas, Pipe
     from parse_maps import get_categories_maps
     from conditions import stratified, dispersed_bubbles
@@ -95,14 +95,12 @@ if __name__ == "__main__":
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
         )
-        # continuous = annular.gas_core_blockage(
-        #     ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
-        # )
-        # fig_temp, ax = plot_continuous_symlog(
-        #     continuous,
-        #     x_ticks=ugs_temp[0, :],
-        #     y_ticks=uls_temp[:, 0],
-        # )
+        continuous = detect_edges(categories)
+        fig_temp, ax = plot_continuous_symlog(
+            continuous,
+            x_ticks=ugs_temp[0, :],
+            y_ticks=uls_temp[:, 0],
+        )
         ax.set_title(f"{inclination}")
 
     plt.show(block=True)
