@@ -2,7 +2,11 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
+from scipy.spatial.kdtree import KDTree
+from scipy.spatial.qhull import Voronoi
 from generate_data import generate_probability_map, refine_velocity_maps
+import scipy.interpolate
+from scipy.spatial import Delaunay
 from conditions import annular
 import matplotlib.pyplot as plt
 import matplotlib.colors
@@ -63,6 +67,48 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
     return fig, axs
 
 
+def plot_categorical_unstructured_map(category_map, overlay_map, x_ticks, y_ticks):
+    """
+    plot a map which contains the representation of a categorical map
+    when the data is unstructured
+    """
+
+    # get new u_ls and u_gs
+
+    # create a mesh with this data
+    # x_mesh, y_mesh = np.meshgrid(x_ticks, y_ticks, sparse=True)
+    # # interpolate data onto mesh
+    # interpolated = scipy.interpolate.griddata(
+    #     (x_ticks, y_ticks),
+    #     category_map,
+    #     (x_mesh, y_mesh),
+    #     method="nearest",
+    # )
+
+    # initialize the figure
+    fig, axs = plt.subplots(figsize=(7, 7))
+    data = np.array([x_ticks, y_ticks]).T
+    kdtree = KDTree(np.log10(data))
+    distances = kdtree.query(np.log10(data), k=3)[0][:, 1:3].sum(axis=1)
+
+    # handle either using axes or not
+    c = axs.scatter(
+        x_ticks,
+        y_ticks,
+        c=category_map,
+        s=distances * 100,
+        alpha=1 - distances / np.max(distances)
+        # shading="nearest",
+        # cmap="Set1",
+        # alpha=0.2,
+    )
+
+    axs.set_xscale("log")
+    axs.set_yscale("log")
+
+    return fig, axs
+
+
 if __name__ == "__main__":
     import numpy as np
     from generate_data import generate_velocity_maps, detect_edges, refine_velocity_maps
@@ -115,6 +161,13 @@ if __name__ == "__main__":
             u_gs_refined_temp, u_ls_refined_temp, liq_temp, gas_temp, pipe_temp
         )
 
-        ax.scatter(u_gs_refined_temp, u_ls_refined_temp, s=1)
+        plot_categorical_unstructured_map(
+            categories.ravel(),
+            overlays.ravel(),
+            x_ticks=u_gs_refined_temp.ravel(),
+            y_ticks=u_ls_refined_temp.ravel(),
+        )
 
-    plt.show(block=True)
+        ax.scatter(u_gs_refined_temp, u_ls_refined_temp, s=1)
+        # plt.savefig("high_dpis.png")
+        plt.show(block=True)

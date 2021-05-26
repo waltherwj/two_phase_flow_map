@@ -5,7 +5,6 @@ and the velocity maps
 
 
 import numpy as np
-from numpy.core.numeric import full_like
 from config import Config
 from scipy import interpolate
 from scipy.signal import convolve
@@ -107,6 +106,9 @@ def generate_probability_map(edges_map, u_gs, u_ls, sigma=1, upsample=10):
     but the higher the number of points the more it looks like a continuous pdf
     """
 
+    # probability datapoints
+    prob_datapoints = Config.NUMBER_REFINED_DATAPOINTS * upsample
+
     # first smooth out the edges
     probability_map = gaussian_filter(edges_map, sigma=sigma)
 
@@ -120,16 +122,16 @@ def generate_probability_map(edges_map, u_gs, u_ls, sigma=1, upsample=10):
     )
 
     # create new vectors with the same range but more points
-    x_new = np.linspace(start=0, stop=size_x, num=size_x * upsample)
-    y_new = np.linspace(start=0, stop=size_y, num=size_y * upsample)
+    x_new = np.linspace(start=0, stop=size_x, num=prob_datapoints)
+    y_new = np.linspace(start=0, stop=size_y, num=prob_datapoints)
 
     # upsample the probability map
     probability_map = interpolation_function(x_new, y_new)
 
     # upsample the u_gs and u_ls arrays
     # create the arrays
-    u_gs_array = np.geomspace(u_gs.min(), u_gs.max(), num=size_x * upsample)
-    u_ls_array = np.geomspace(u_ls.min(), u_ls.max(), num=size_y * upsample)
+    u_gs_array = np.geomspace(u_gs.min(), u_gs.max(), num=prob_datapoints)
+    u_ls_array = np.geomspace(u_ls.min(), u_ls.max(), num=prob_datapoints)
 
     # normalize it so that it sums to 1
     probability_map /= np.abs(probability_map).sum()
