@@ -111,4 +111,10 @@ if __name__ == "__main__":
             categories, ugs_temp, uls_temp
         )
 
-        plt.show(block=True)
+        categories, overlays = get_categories_maps(
+            u_gs_refined_temp, u_ls_refined_temp, liq_temp, gas_temp, pipe_temp
+        )
+
+        ax.scatter(u_gs_refined_temp, u_ls_refined_temp, s=1)
+
+    plt.show(block=True)

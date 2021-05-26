@@ -39,11 +39,13 @@ def refine_velocity_maps(
     u_gs,
     u_ls,
     refined_datapoints=Config.NUMBER_REFINED_DATAPOINTS,
-    sigma=3,
+    sigma=1,
     upscale=10,
 ):
     """get a new velocity map which takes into account the edges of the
-    rough map
+    rough map. The velocity map uses both the original rough map points plus
+    a set of refined points which are chosen based on the edges detected on the
+    rough.
     """
     # detect the edges of the rough map
     edges_map = detect_edges(rough_map)
@@ -57,6 +59,10 @@ def refine_velocity_maps(
     u_gs_map = np.tile(u_gs_sample, (u_gs_sample.size, 1))
     u_ls_map = np.tile(u_ls_sample, (u_ls_sample.size, 1)).T
 
+    # get the original ugs and uls
+    u_gs_rough = u_gs.ravel()
+    u_ls_rough = u_ls.ravel()
+
     # get the random sample of indexes using the probability map
     indexes_to_choose = np.arange(probability_map.size)
     indexes = np.random.choice(
@@ -65,8 +71,12 @@ def refine_velocity_maps(
         replace=False,
         p=probability_map.ravel(),
     )
-    u_gs_refined = u_gs_map[indexes]
-    u_ls_refined = u_ls_map[indexes]
+    u_gs_refined = u_gs_map.ravel()[indexes]
+    u_ls_refined = u_ls_map.ravel()[indexes]
+
+    # join the two
+    u_gs_refined = np.append(u_gs_rough, u_gs_refined)
+    u_ls_refined = np.append(u_ls_rough, u_ls_refined)
 
     return u_gs_refined, u_ls_refined
 
@@ -88,7 +98,7 @@ def detect_edges(parsed_map):
     return edges_map
 
 
-def generate_probability_map(edges_map, u_gs, u_ls, sigma=3, upsample=10):
+def generate_probability_map(edges_map, u_gs, u_ls, sigma=1, upsample=10):
     """generate a probability distribution for points,
     with a high likelihood of putting points close to the
     edges.
@@ -105,7 +115,7 @@ def generate_probability_map(edges_map, u_gs, u_ls, sigma=3, upsample=10):
     size_y = probability_map.shape[1]
     x_initial = np.arange(size_x)
     y_initial = np.arange(size_y)
-    interpolation_function = interpolate.RectBivariateSpline(
+    interpolation_function = interpolate.interp2d(
         x_initial, y_initial, z=probability_map
     )
 
