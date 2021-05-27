@@ -158,21 +158,6 @@ if __name__ == "__main__":
         # )
         # ax.set_title(f"{inclination}")
 
-        u_gs_refined_temp, u_ls_refined_temp = refine_velocity_maps(
-            categories, ugs_temp, uls_temp
-        )
-
-        # categories, overlays = get_categories_maps(
-        #     u_gs_refined_temp, u_ls_refined_temp, liq_temp, gas_temp, pipe_temp
-        # )
-
-        # plot_categorical_unstructured_map(
-        #     categories.ravel(),
-        #     overlays.ravel(),
-        #     x_ticks=u_gs_refined_temp.ravel(),
-        #     y_ticks=u_ls_refined_temp.ravel(),
-        # )
-
         ax.scatter(u_gs_refined_temp, u_ls_refined_temp, s=1)
         # plt.savefig("high_dpis.png")
     plt.show(block=True)

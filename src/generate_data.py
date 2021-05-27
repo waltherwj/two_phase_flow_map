@@ -62,20 +62,38 @@ def refine_velocity_maps(
     u_gs_rough = u_gs.ravel()
     u_ls_rough = u_ls.ravel()
 
-    # get the random sample of indexes using the probability map
+    # get the initial random sample of indexes using the probability map
     indexes_to_choose = np.arange(probability_map.size)
-    indexes = np.random.choice(
+    first_indexes = np.random.choice(
         indexes_to_choose,
-        size=refined_datapoints ** 2,
+        size=refined_datapoints,
         replace=False,
         p=probability_map.ravel(),
     )
-    u_gs_refined = u_gs_map.ravel()[indexes]
-    u_ls_refined = u_ls_map.ravel()[indexes]
+    u_gs_selected = u_gs_map.ravel()[first_indexes]
+    u_ls_selected = u_ls_map.ravel()[first_indexes]
+
+    all_ug_s = np.append(u_gs_rough, u_gs_selected)
+    all_ul_s = np.append(u_ls_rough, u_ls_selected)
+    u_gs_refined, u_ls_refined = np.meshgrid(all_ug_s, all_ul_s)
+
+    # # get the probabilities of this limited set
+    # first_indexes_prob = probability_map.ravel()[first_indexes]
+    # # rescale
+    # first_indexes_prob /= np.abs(first_indexes_prob).sum()
+    # # sample again with replacement this time
+    # indexes = np.random.choice(
+    #     first_indexes,
+    #     size=refined_datapoints * refined_datapoints - refined_datapoints,
+    #     replace=True,
+    #     p=first_indexes_prob,
+    # )
+    # u_gs_refined = u_gs_map.ravel()[indexes]
+    # u_ls_refined = u_ls_map.ravel()[indexes]
 
     # join the two
-    u_gs_refined = np.append(u_gs_rough, u_gs_refined)
-    u_ls_refined = np.append(u_ls_rough, u_ls_refined)
+    # u_gs_refined = np.append(u_gs_rough, u_gs_refined)
+    # u_ls_refined = np.append(u_ls_rough, u_ls_refined)
 
     return u_gs_refined, u_ls_refined
 
