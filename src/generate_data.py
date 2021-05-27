@@ -12,7 +12,7 @@ from scipy.ndimage import gaussian_filter
 
 
 def generate_velocity_maps(
-    datapoints=Config.NUMBER_ROUGH_DATAPOINTS,
+    datapoints=Config.NUMBER_REFINED_DATAPOINTS,
     min_u_ls=Config.MIN_ULS,
     max_u_ls=Config.MAX_ULS,
     min_u_gs=Config.MIN_UGS,
@@ -33,7 +33,7 @@ def generate_velocity_maps(
     return u_gs_map, u_ls_map
 
 
-def refine_velocity_maps(
+def generate_velocity_data_close_to_edges(
     rough_map,
     u_gs,
     u_ls,
@@ -45,6 +45,9 @@ def refine_velocity_maps(
     rough map. The velocity map uses both the original rough map points plus
     a set of refined points which are chosen based on the edges detected on the
     rough.
+
+    This is not used for plotting, but could theoretically be used to have better guesses
+    to solve for the transitions
     """
     # detect the edges of the rough map
     edges_map = detect_edges(rough_map)
@@ -62,43 +65,25 @@ def refine_velocity_maps(
     u_gs_rough = u_gs.ravel()
     u_ls_rough = u_ls.ravel()
 
-    # get the initial random sample of indexes using the probability map
+    # get the random sample of indexes using the probability map
     indexes_to_choose = np.arange(probability_map.size)
-    first_indexes = np.random.choice(
+    indexes = np.random.choice(
         indexes_to_choose,
-        size=refined_datapoints,
+        size=refined_datapoints ** 2,
         replace=False,
         p=probability_map.ravel(),
     )
-    u_gs_selected = u_gs_map.ravel()[first_indexes]
-    u_ls_selected = u_ls_map.ravel()[first_indexes]
-
-    all_ug_s = np.append(u_gs_rough, u_gs_selected)
-    all_ul_s = np.append(u_ls_rough, u_ls_selected)
-    u_gs_refined, u_ls_refined = np.meshgrid(all_ug_s, all_ul_s)
-
-    # # get the probabilities of this limited set
-    # first_indexes_prob = probability_map.ravel()[first_indexes]
-    # # rescale
-    # first_indexes_prob /= np.abs(first_indexes_prob).sum()
-    # # sample again with replacement this time
-    # indexes = np.random.choice(
-    #     first_indexes,
-    #     size=refined_datapoints * refined_datapoints - refined_datapoints,
-    #     replace=True,
-    #     p=first_indexes_prob,
-    # )
-    # u_gs_refined = u_gs_map.ravel()[indexes]
-    # u_ls_refined = u_ls_map.ravel()[indexes]
+    u_gs_refined = u_gs_map.ravel()[indexes]
+    u_ls_refined = u_ls_map.ravel()[indexes]
 
     # join the two
-    # u_gs_refined = np.append(u_gs_rough, u_gs_refined)
-    # u_ls_refined = np.append(u_ls_rough, u_ls_refined)
+    u_gs_refined = np.append(u_gs_rough, u_gs_refined)
+    u_ls_refined = np.append(u_ls_rough, u_ls_refined)
 
     return u_gs_refined, u_ls_refined
 
 
-def detect_edges(parsed_map):
+def detect_edges(parsed_map, sigma=0.5):
     """get the edge map using the fact that each area is a well defined
     single value section
     """
@@ -109,8 +94,7 @@ def detect_edges(parsed_map):
     edges_y = np.diff(parsed_map, axis=1, prepend=parsed_map[:, :1])
 
     edges_map = ((edges_x != 0) | (edges_y != 0)).astype(float)
-    # edge_map = np.abs(convolve(parsed_map, kernel, mode="same"))
-    # edge_map[edge_map < 1] = 1
+    edges_map[edges_map == 0] = np.nan
 
     return edges_map
 
