@@ -2,10 +2,10 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
+from config import Config
 from scipy.spatial.kdtree import KDTree
 from scipy.spatial.qhull import Voronoi
 from generate_data import generate_probability_map, refine_velocity_maps
-import scipy.interpolate
 from scipy.spatial import Delaunay
 from conditions import annular
 import matplotlib.pyplot as plt
@@ -72,39 +72,44 @@ def plot_categorical_unstructured_map(category_map, overlay_map, x_ticks, y_tick
     plot a map which contains the representation of a categorical map
     when the data is unstructured
     """
-
+    # TODO implement mapping nearest color to background mesh
     # get new u_ls and u_gs
-
-    # create a mesh with this data
-    # x_mesh, y_mesh = np.meshgrid(x_ticks, y_ticks, sparse=True)
-    # # interpolate data onto mesh
-    # interpolated = scipy.interpolate.griddata(
-    #     (x_ticks, y_ticks),
-    #     category_map,
-    #     (x_mesh, y_mesh),
-    #     method="nearest",
-    # )
+    u_ls_res = np.geomspace(y_ticks.min(), y_ticks.max(), num=Config.RESOLUTION)
+    u_gs_res = np.geomspace(x_ticks.min(), x_ticks.max(), num=Config.RESOLUTION)
+    # tile them up in the correct dimension and get an array with all location combinations
+    u_gs_map = np.tile(u_gs_res, (Config.RESOLUTION, 1)).ravel()
+    u_ls_map = np.tile(u_ls_res, (Config.RESOLUTION, 1)).T.ravel()
+    data_map = np.array([u_gs_map, u_ls_map]).T
 
     # initialize the figure
     fig, axs = plt.subplots(figsize=(7, 7))
     data = np.array([x_ticks, y_ticks]).T
     kdtree = KDTree(np.log10(data))
-    distances = kdtree.query(np.log10(data), k=3)[0][:, 1:3].sum(axis=1)
+    distances, indices = kdtree.query(np.log10(data_map), k=2)
+    # get rid of the zero distance (identity) indexes
+    indices = indices[:, 1:]
+    # get the array of colors
+    colors_array = np.full(Config.RESOLUTION * Config.RESOLUTION, np.nan)
+    # fill the array
+    colors_array = category_map[indices]
+    # shape it into the correct dimension
+    colors_array = colors_array.reshape((Config.RESOLUTION, Config.RESOLUTION))
+    colors_array = np.rot90(colors_array.T, k=4)
+    # plot the image
+    axs.hexbin(u_gs_map, u_ls_res, colors_array)
 
     # handle either using axes or not
-    c = axs.scatter(
-        x_ticks,
-        y_ticks,
-        c=category_map,
-        s=distances * 100,
-        alpha=1 - distances / np.max(distances)
-        # shading="nearest",
-        # cmap="Set1",
-        # alpha=0.2,
-    )
+    # c = axs.scatter(
+    #     x_ticks,
+    #     y_ticks,
+    #     c=category_map
+    #     # shading="nearest",
+    #     # cmap="Set1",
+    #     # alpha=0.2,
+    # )
 
-    axs.set_xscale("log")
-    axs.set_yscale("log")
+    # axs.set_xscale("log")
+    # axs.set_yscale("log")
 
     return fig, axs
 
@@ -157,17 +162,17 @@ if __name__ == "__main__":
             categories, ugs_temp, uls_temp
         )
 
-        categories, overlays = get_categories_maps(
-            u_gs_refined_temp, u_ls_refined_temp, liq_temp, gas_temp, pipe_temp
-        )
+        # categories, overlays = get_categories_maps(
+        #     u_gs_refined_temp, u_ls_refined_temp, liq_temp, gas_temp, pipe_temp
+        # )
 
-        plot_categorical_unstructured_map(
-            categories.ravel(),
-            overlays.ravel(),
-            x_ticks=u_gs_refined_temp.ravel(),
-            y_ticks=u_ls_refined_temp.ravel(),
-        )
+        # plot_categorical_unstructured_map(
+        #     categories.ravel(),
+        #     overlays.ravel(),
+        #     x_ticks=u_gs_refined_temp.ravel(),
+        #     y_ticks=u_ls_refined_temp.ravel(),
+        # )
 
         ax.scatter(u_gs_refined_temp, u_ls_refined_temp, s=1)
         # plt.savefig("high_dpis.png")
-        plt.show(block=True)
+    plt.show(block=True)
