@@ -8,9 +8,9 @@ this is still unfinished work. I am working on getting it finished and more well
 
 This repository is an attempt to model two phase flow maps in pipes without actually solving for the boundaries. The attempt was successful. Examples
 
-![Figure_6](.\images\Figure_6.png)
+![Figure_6](/images/Figure_6.png)
 
-![Figure_2](.\images\Figure_2.png)
+![Figure_2](/images/Figure_2.png)
 
 # WIP
 
