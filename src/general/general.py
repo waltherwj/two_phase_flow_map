@@ -37,6 +37,13 @@ def single_phase_dpdx(velocity, fluid, pipe):
     return dpdx_s
 
 
+def single_fluid_velocity(fluid, pipe):
+    """calculate the velocity as if the fluid was the only one
+    in the pipe
+    """
+    return fluid.mass_flowrate / (fluid.density * pipe.area)
+
+
 class Geometry:
     """calculates and stores the geometric values related to the
     liquid height ratio
