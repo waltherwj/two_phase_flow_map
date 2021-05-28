@@ -1,7 +1,6 @@
 """
 the functions that are used to calculate the conditions for flow to be considered
-bubbly flow
-
+dispersed bubble flow
 """
 import numpy as np
 import general
