@@ -2,7 +2,7 @@
 define the constants of the two phases. Soft dependency on coolprop for some functionality
 """
 import numpy as np
-from general import fluid_area_ratio
+import coolprop
 
 
 class Gas:

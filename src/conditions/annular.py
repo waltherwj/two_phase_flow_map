@@ -3,9 +3,8 @@ the functions that define the conditions for flow to be considered
 annular flow
 """
 import numpy as np
-from scipy.optimize import newton, brentq
+from scipy.optimize import newton
 import general
-from . import intermittent
 
 
 def liquid_stability(u_gs, u_ls, liquid, gas, pipe):

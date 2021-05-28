@@ -9,8 +9,7 @@ class Config:
     class for a namespace of the configs
     """
 
-    NUMBER_ROUGH_DATAPOINTS = 20
-    NUMBER_REFINED_DATAPOINTS = 500
+    NUMBER_DATAPOINTS = 300
     RESOLUTION = 256
     MIN_ULS = 1e-3
     MAX_ULS = 1e1

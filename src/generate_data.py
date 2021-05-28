@@ -12,7 +12,7 @@ from scipy.ndimage import gaussian_filter
 
 
 def generate_velocity_maps(
-    datapoints=Config.NUMBER_REFINED_DATAPOINTS,
+    datapoints=Config.NUMBER_DATAPOINTS,
     min_u_ls=Config.MIN_ULS,
     max_u_ls=Config.MAX_ULS,
     min_u_gs=Config.MIN_UGS,
@@ -37,7 +37,7 @@ def generate_velocity_data_close_to_edges(
     rough_map,
     u_gs,
     u_ls,
-    refined_datapoints=Config.NUMBER_REFINED_DATAPOINTS,
+    refined_datapoints=Config.NUMBER_DATAPOINTS,
     sigma=1,
     upscale=10,
 ):
@@ -109,7 +109,7 @@ def generate_probability_map(edges_map, u_gs, u_ls, sigma=1, upsample=10):
     """
 
     # probability datapoints
-    prob_datapoints = Config.NUMBER_REFINED_DATAPOINTS * upsample
+    prob_datapoints = Config.NUMBER_DATAPOINTS * upsample
 
     # first smooth out the edges
     probability_map = gaussian_filter(edges_map, sigma=sigma)
