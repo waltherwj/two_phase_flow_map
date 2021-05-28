@@ -3,11 +3,10 @@ the functions that define the conditions for flow to be considered
 intermittent flow
 """
 import numpy as np
-from scipy.optimize import newton
 from fluids import Mix
 import general
 from general import friction_factor
-from .dispersed_bubbles import deformed_bubble_critical_size
+import equations
 
 
 def slug_free_of_bubbles(u_gs, u_ls, liquid, gas, pipe):
@@ -53,7 +52,9 @@ def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):
     fric_mix = friction_factor.niazkar_and_churchill(reynolds_mix, pipe.roughness)
 
     # get the critical size
-    critical_diam = deformed_bubble_critical_size(liquid, gas, pipe)
+    critical_diam = equations.dispersed_bubbles.deformed_bubble_critical_size(
+        liquid, gas, pipe
+    )
 
     # the expression split in terms for readability
     term_1 = critical_diam * (2 * fric_mix * (u_mix ** 3) / diam) ** (2 / 5)

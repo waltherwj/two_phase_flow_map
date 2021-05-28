@@ -39,7 +39,7 @@ def angle_prevents_bubble_migration(
     rho_g = gas.density
     sigma = liquid.bubble_surface_tension
     grav = pipe.gravity
-    beta = pipe.inclinatio
+    beta = pipe.inclination
     zigzag_angle = zigzag_angle * np.pi / 180
 
     # constants
