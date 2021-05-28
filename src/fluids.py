@@ -2,7 +2,6 @@
 define the constants of the two phases. Soft dependency on coolprop for some functionality
 """
 import numpy as np
-import coolprop
 
 
 class Gas:

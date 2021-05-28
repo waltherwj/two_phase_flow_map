@@ -2,12 +2,6 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
-from config import Config
-from scipy.spatial.kdtree import KDTree
-from scipy.spatial.qhull import Voronoi
-from generate_data import generate_probability_map
-from scipy.spatial import Delaunay
-from conditions import annular
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
