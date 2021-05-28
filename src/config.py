@@ -17,7 +17,6 @@ class Config:
     MAX_UGS = 1e2
 
     CATEGORIES = {
-        "unphysical": -1,
         "dispersed bubble": 1,
         "stratified": 2,
         "annular": 3,

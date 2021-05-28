@@ -4,12 +4,12 @@ maps and other important features
 """
 from config import Config
 import matplotlib.pyplot as plt
-import matplotlib.colors
+import general
 from scipy.ndimage import gaussian_filter
 import generate_data
 
 
-def plot_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
+def plot_map(category_map, overlay_map, liquid, gas, pipe, x_ticks=None, y_ticks=None):
     """
     plot a map which contains the representation of a categorical map
     """
@@ -24,6 +24,10 @@ def plot_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
     # scale min alpha
     alphas[alphas < 0.2] = 0.2
 
+    # get the specific location of the supplied case
+    u_gs = general.single_fluid_velocity(gas, pipe)
+    u_ls = general.single_fluid_velocity(liquid, pipe)
+
     c = axs.pcolormesh(
         x_ticks,
         y_ticks,
@@ -32,6 +36,8 @@ def plot_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
         cmap=Config.CMAP,
         alpha=alphas,
     )
+
+    axs.plot(u_gs, u_ls, marker="+", markersize=10)
 
     fig.colorbar(c)
     axs.pcolormesh(
@@ -51,7 +57,7 @@ if __name__ == "__main__":
     from fluids import Liquid, Gas, Pipe
     from parse_maps import get_categories_maps
 
-    total_mass_flow = 0.001
+    total_mass_flow = 0.01
     quality = 0.001
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality
@@ -74,6 +80,9 @@ if __name__ == "__main__":
         fig_temp, ax = plot_map(
             categories,
             overlays,
+            liq_temp,
+            gas_temp,
+            pipe_temp,
             x_ticks=ugs_temp[0, :],
             y_ticks=uls_temp[:, 0],
         )

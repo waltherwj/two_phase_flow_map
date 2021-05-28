@@ -4,14 +4,7 @@ are valid at a certain map location
 """
 from config import Config
 import numpy as np
-from conditions import (
-    annular,
-    bubbly,
-    dispersed_bubbles,
-    stratified,
-    intermittent,
-    unphysical,
-)
+from conditions import annular, bubbly, dispersed_bubbles, stratified, intermittent
 
 
 def parse_bubbly(u_gs, u_ls, liquid, gas, pipe):
@@ -135,7 +128,6 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     annular_map = parse_annular(u_gs, u_ls, liquid, gas, pipe)
     elongated_bubble_map = parse_elongated_bubble(u_gs, u_ls, liquid, gas, pipe)
     churn_map = parse_churn(u_gs, u_ls, liquid, gas, pipe)
-    unphysical_map = parse_unphysical(u_gs, u_ls, liquid, gas, pipe)
 
     # initialize a map with all zeros. Some maps are overlays on the actual map
     category_map = np.full_like(u_ls, np.nan)
@@ -167,8 +159,5 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
 
     # churn flow
     category_map[churn_map & np.isnan(category_map)] = Config.CATEGORIES["churn"]
-
-    # unphysical conditions
-    overlay_map[unphysical_map] = -Config.CATEGORIES["unphysical"]
 
     return category_map, overlay_map
