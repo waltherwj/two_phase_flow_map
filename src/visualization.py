@@ -40,9 +40,6 @@ def plot_map(category_map, overlay_map, liquid, gas, pipe, x_ticks=None, y_ticks
     axs.plot(u_gs, u_ls, marker="+", markersize=10)
 
     fig.colorbar(c)
-    axs.pcolormesh(
-        x_ticks, y_ticks, overlay_map, shading="nearest", cmap="Dark2", alpha=0.5
-    )
     axs.set_xticks(x_ticks)
     axs.set_yticks(y_ticks)
     axs.set_xscale("log")
@@ -58,7 +55,7 @@ if __name__ == "__main__":
     from parse_maps import get_categories_maps
 
     total_mass_flow = 0.01
-    quality = 0.001
+    quality = 0.01
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality
 
