@@ -2,6 +2,7 @@
 This module dictates how all the maps interact and which ones 
 are valid at a certain map location
 """
+from config import Config
 import numpy as np
 from conditions import (
     annular,
@@ -142,29 +143,32 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     # colors will correspond to these numbers
 
     # dispersed bubble is true regardless of other conditions
-    category_map[bubble_map] = 1
+    category_map[bubble_map] = Config.CATEGORIES["dispersed bubble"]
 
     # stratified
-    category_map[stratified_map & np.isnan(category_map)] = 2
+    category_map[stratified_map & np.isnan(category_map)] = Config.CATEGORIES[
+        "stratified"
+    ]
 
     # annular
-    category_map[annular_map & np.isnan(category_map)] = 3
+    category_map[annular_map & np.isnan(category_map)] = Config.CATEGORIES["annular"]
 
     # if bubbly is possible and it then it is not an elongated bubble
     if np.any(bubbly_map):
-        category_map[bubbly_map & np.isnan(category_map)] = 4
+        category_map[bubbly_map & np.isnan(category_map)] = Config.CATEGORIES["bubbly"]
     else:
         # elongated bubble
-        category_map[elongated_bubble_map & np.isnan(category_map)] = 5
+        category_map[elongated_bubble_map & np.isnan(category_map)] = Config.CATEGORIES[
+            "elongated bubble"
+        ]
 
     # slug flow
-    category_map[~churn_map & np.isnan(category_map)] = 6
+    category_map[~churn_map & np.isnan(category_map)] = Config.CATEGORIES["slug"]
 
     # churn flow
-    category_map[churn_map & np.isnan(category_map)] = 7
+    category_map[churn_map & np.isnan(category_map)] = Config.CATEGORIES["churn"]
 
-    # unphysical conditions are always NaN
-    # category_map[unphysical_map] = -1
-    overlay_map[unphysical_map] = -1
+    # unphysical conditions
+    overlay_map[unphysical_map] = -Config.CATEGORIES["unphysical"]
 
     return category_map, overlay_map

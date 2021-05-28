@@ -2,13 +2,14 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
+from config import Config
 import matplotlib.pyplot as plt
 import matplotlib.colors
 from scipy.ndimage import gaussian_filter
 import generate_data
 
 
-def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
+def plot_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
     """
     plot a map which contains the representation of a categorical map
     """
@@ -17,18 +18,21 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
 
     # get alpha values
     edges = generate_data.detect_edges(category_map)
-    alphas = gaussian_filter(edges, sigma=20)
+    alphas = gaussian_filter(edges, sigma=1)
     # scale up to 1
     alphas = alphas / alphas.max()
+    # scale min alpha
+    alphas[alphas < 0.2] = 0.2
 
     c = axs.pcolormesh(
         x_ticks,
         y_ticks,
         category_map,
         shading="gouraud",
-        cmap="Set1",
+        cmap=Config.CMAP,
         alpha=alphas,
     )
+
     fig.colorbar(c)
     axs.pcolormesh(
         x_ticks, y_ticks, overlay_map, shading="nearest", cmap="Dark2", alpha=0.5
@@ -61,13 +65,13 @@ if __name__ == "__main__":
     )
     gas_temp = Gas(density=1.225, mass_flowrate=gas_massflow, dynamic_viscosity=18.3e-6)
 
-    for inclination in [-90]:  # [-90, -80, -30, -1, 0, 1, 30, 85, 90]:
+    for inclination in [-90]:  # , -80, -30, -1, 0, 1, 30, 85, 90]:
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.00001)
         categories, overlays = get_categories_maps(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
 
-        fig_temp, ax = plot_categorical_map(
+        fig_temp, ax = plot_map(
             categories,
             overlays,
             x_ticks=ugs_temp[0, :],
