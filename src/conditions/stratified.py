@@ -6,6 +6,7 @@ import numpy as np
 from scipy.optimize import newton
 from general.general import Geometry
 from general import friction_factor, non_dimensional
+import equations
 
 
 def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
@@ -28,7 +29,7 @@ def equilibrium_equation(u_gs, u_ls, liquid, gas, pipe):
 
     # the critical heights at which waves would start to grow
     height_tilde = newton(
-        Calculate.wave_growth, height_initial, args=(u_gs, liquid, gas, pipe)
+        equations.stratified.wave_growth, height_initial, args=(u_gs, liquid, gas, pipe)
     )
 
     # non dimensional
@@ -100,7 +101,7 @@ def too_steep_for_stratified(u_gs, u_ls, liquid, gas, pipe):
     height_initial = np.ones_like(u_gs) * 0.95
     # the critical heights at which waves would start to grow
     height_tilde = newton(
-        Calculate.wave_growth, height_initial, args=(u_gs, liquid, gas, pipe)
+        equations.stratified.wave_growth, height_initial, args=(u_gs, liquid, gas, pipe)
     )
     # dimensional
     geom = Geometry(
@@ -119,56 +120,3 @@ def too_steep_for_stratified(u_gs, u_ls, liquid, gas, pipe):
 
     # the condition
     return lhs > rhs
-
-
-class Calculate:
-    """
-    namespace for the methods that perform calculations as opposed to
-    returning condition maps
-    """
-
-    def wave_growth(crit_height, u_gs, liquid, gas, pipe):
-        """f(x) = 0 formulation to find the critical fluid height
-        at which waves will grow
-        Taitel&Duckler 1976
-        """
-
-        # get the modified froude number
-        froude = Calculate.modified_froude(u_gs, liquid, gas, pipe)
-
-        # fix broken values
-        crit_height[crit_height > 1] = 1
-        crit_height[crit_height < 0] = 0
-
-        # non dimensional values
-        tilde = Geometry(crit_height, non_dimensional=True)
-
-        # derivative
-        dadh_l_tilde = ((2 - 2 * crit_height) * crit_height) / np.sqrt(
-            (1 - crit_height) * crit_height
-        )
-
-        # divide lhs in terms for readability
-        lhs_1 = 1 / ((1 - crit_height) ** 2)
-        lhs_2 = (tilde.vel_g ** 2) * dadh_l_tilde / tilde.area_g
-        lhs = (froude ** 2) * lhs_1 * lhs_2
-
-        return lhs - 1
-
-    @staticmethod
-    def modified_froude(u_gs, liquid, gas, pipe):
-        """calculate the modified froude modified by density ratio"""
-
-        # local variables for readability
-        rho_l = liquid.density
-        rho_g = gas.density
-        diam = pipe.diameter
-        grav = pipe.gravity
-        beta = pipe.inclination
-
-        # terms for readability
-        froude_1 = np.sqrt(rho_g / (rho_l - rho_g))
-        froude_2 = u_gs / np.sqrt(diam * grav * np.cos(beta))
-        froude = froude_1 * froude_2
-
-        return froude

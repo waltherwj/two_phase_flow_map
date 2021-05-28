@@ -1,6 +1,6 @@
 """
 the functions that are used to calculate the conditions for flow to be considered
-dispersed bubble flow
+intermittent flow
 """
 import numpy as np
 from . import dispersed_bubbles
