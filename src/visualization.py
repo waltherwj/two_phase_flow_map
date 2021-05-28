@@ -4,6 +4,7 @@ maps and other important features
 """
 from config import Config
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import general
 from scipy.ndimage import gaussian_filter
 import generate_data
@@ -28,6 +29,12 @@ def plot_map(category_map, overlay_map, liquid, gas, pipe, x_ticks=None, y_ticks
     u_gs = general.single_fluid_velocity(gas, pipe)
     u_ls = general.single_fluid_velocity(liquid, pipe)
 
+    # get the legend
+    legend_elements = []
+    for category, value in Config.CATEGORIES.items():
+        if np.any(category_map == value):
+            legend_elements.append(Patch(facecolor=Config.CMAP(value), label=category))
+
     c = axs.pcolormesh(
         x_ticks,
         y_ticks,
@@ -37,7 +44,9 @@ def plot_map(category_map, overlay_map, liquid, gas, pipe, x_ticks=None, y_ticks
         alpha=alphas,
     )
 
-    axs.plot(u_gs, u_ls, marker="+", markersize=10)
+    axs.legend(handles=legend_elements)
+
+    axs.plot(u_gs, u_ls, marker="x", color="black", mew=2, markersize=10)
 
     fig.colorbar(c)
     axs.set_xticks(x_ticks)
@@ -55,7 +64,7 @@ if __name__ == "__main__":
     from parse_maps import get_categories_maps
 
     total_mass_flow = 0.01
-    quality = 0.01
+    quality = 0.1
     liq_massflow = total_mass_flow * (1 - quality)
     gas_massflow = total_mass_flow * quality
 

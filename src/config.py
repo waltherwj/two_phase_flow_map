@@ -17,12 +17,12 @@ class Config:
     MAX_UGS = 1e2
 
     CATEGORIES = {
-        "dispersed bubble": 1,
-        "stratified": 2,
-        "annular": 3,
-        "bubbly": 4,
-        "elongated bubble": 5,
-        "slug": 6,
-        "churn": 7,
+        "dispersed bubble": 0,
+        "stratified": 1,
+        "annular": 2,
+        "bubbly": 3,
+        "elongated bubble": 4,
+        "slug": 5,
+        "churn": 6,
     }
-    CMAP = cm.get_cmap("tab20", lut=len(CATEGORIES))
+    CMAP = cm.get_cmap("Dark2", lut=len(CATEGORIES))
