@@ -8,35 +8,6 @@ from scipy.ndimage import gaussian_filter
 import generate_data
 
 
-def plot_continuous_symlog(
-    array_map, x_ticks=None, y_ticks=None, axs=None, thresh=1e-5
-):
-    """
-    plot a map which contains the representation of a
-    continuous variable on a symmetrical log scale
-    (most scenarios for this type of mapping)
-    """
-    # initialize the figure
-    fig, axs = plt.subplots(figsize=(7, 7))
-
-    c = axs.pcolormesh(
-        x_ticks,
-        y_ticks,
-        array_map,
-        shading="gouraud",
-        cmap="binary",
-        antialiased=True,
-    )
-
-    fig.colorbar(c)
-    axs.set_xticks(x_ticks)
-    axs.set_yticks(y_ticks)
-    axs.set_xscale("log")
-    axs.set_yscale("log")
-
-    return axs
-
-
 def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
     """
     plot a map which contains the representation of a categorical map
@@ -46,9 +17,9 @@ def plot_categorical_map(category_map, overlay_map, x_ticks=None, y_ticks=None):
 
     # get alpha values
     edges = generate_data.detect_edges(category_map)
-    alphas = gaussian_filter(edges, sigma=10)
+    alphas = gaussian_filter(edges, sigma=20)
     # scale up to 1
-    alphas = (alphas - alphas.min()) / (alphas.max() - alphas.min())
+    alphas = alphas / alphas.max()
 
     c = axs.pcolormesh(
         x_ticks,

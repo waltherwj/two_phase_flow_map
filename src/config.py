@@ -10,7 +10,6 @@ class Config:
     """
 
     NUMBER_DATAPOINTS = 300
-    RESOLUTION = 256
     MIN_ULS = 1e-3
     MAX_ULS = 1e1
     MIN_UGS = 1e-2
