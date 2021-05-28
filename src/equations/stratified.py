@@ -1,6 +1,6 @@
 """
 the functions that are used to calculate the conditions for flow to be considered
-intermittent flow
+stratified flow
 """
 import numpy as np
 from general.general import Geometry

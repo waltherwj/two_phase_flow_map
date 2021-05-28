@@ -83,7 +83,7 @@ def generate_velocity_data_close_to_edges(
     return u_gs_refined, u_ls_refined
 
 
-def detect_edges(parsed_map, sigma=0.5):
+def detect_edges(parsed_map):
     """get the edge map using the fact that each area is a well defined
     single value section
     """
@@ -94,7 +94,6 @@ def detect_edges(parsed_map, sigma=0.5):
     edges_y = np.diff(parsed_map, axis=1, prepend=parsed_map[:, :1])
 
     edges_map = ((edges_x != 0) | (edges_y != 0)).astype(float)
-    edges_map[edges_map == 0] = np.nan
 
     return edges_map
 
