@@ -6,7 +6,7 @@ My main modifications involve things like the friction factors used, and some as
 
 ## Usage 
 
-The easiest way to use the code is to generate `Liquid`, `Gas` and `Pipe` class instances, generate the map data with `parse_maps.get_category_maps()`, and then pass all the data to the  `visualization.plot_map()` function. See the example below:
+The easiest way to use the code is to generate `Liquid`, `Gas` and `Pipe` class instances, plus to generate the 2D velocity data using `generate_data.generate_velocity_maps()`, then generate the map data with `parse_maps.get_category_maps()`, and then pass all the data to the  `visualization.plot_map()` function. See the example below:
 
 ```python
 import generate_data
