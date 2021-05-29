@@ -10,22 +10,6 @@ https://github.com/IMEConsultants/colebrook/blob/master/colebrook/colebrook.py
 import numpy as np
 
 
-def laminar_and_fang(reynolds, roughness):
-    """combine fang 2011 model for transition and turbulent with the laminar model"""
-
-    friction = np.empty_like(reynolds)
-    reynolds = np.array(reynolds)
-
-    turbulent = reynolds >= 2300
-    # laminar
-    friction[~turbulent] = laminar(reynolds[~turbulent])
-
-    # turbulent
-    friction[turbulent] = fang(reynolds[turbulent], roughness)
-
-    return friction
-
-
 def laminar(reynolds):
     """calculate laminar friction factor"""
     return reynolds / 64
@@ -37,7 +21,6 @@ def niazkar_and_churchill(reynolds, roughness):
     or where it is invalid
     """
     reynolds = np.array(reynolds)
-    turbulent = reynolds > 2300
     friction = np.full_like(reynolds, np.nan)
     friction = niazkar(reynolds, roughness)
     # where it hasn't solved, use churchill

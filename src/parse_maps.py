@@ -122,9 +122,8 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
 
     # initialize a map with all zeros. Some maps are overlays on the actual map
     category_map = np.full_like(u_ls, np.nan)
-    overlay_map = np.full_like(u_ls, np.nan)
-    # colors will correspond to these numbers
 
+    # colors will correspond to these numbers
     # dispersed bubble is true regardless of other conditions
     category_map[bubble_map] = Config.CATEGORIES["dispersed bubble"]
 

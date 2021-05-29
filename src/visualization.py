@@ -44,15 +44,15 @@ def plot_map(category_map, liquid, gas, pipe, x_ticks=None, y_ticks=None):
         alpha=alphas,
     )
 
-    axs.legend(handles=legend_elements)
+    axs.plot(u_gs, u_ls, marker="x", color="black", mew=2, markersize=10, label="case")
+    axs.legend(handles=legend_elements, bbox_to_anchor=(1.04, 1), loc="upper left")
 
-    axs.plot(u_gs, u_ls, marker="x", color="black", mew=2, markersize=10)
-
-    fig.colorbar(c)
     axs.set_xticks(x_ticks)
     axs.set_yticks(y_ticks)
     axs.set_xscale("log")
     axs.set_yscale("log")
+    axs.set_title(f"Inclination = ${pipe.inclination*180/np.pi:.1f}{{\degree}}$")
+    plt.tight_layout()
 
     return fig, axs
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     )
     gas_temp = Gas(density=1.225, mass_flowrate=gas_massflow, dynamic_viscosity=18.3e-6)
 
-    for inclination in [-90]:  # , -80, -30, -1, 0, 1, 30, 85, 90]:
+    for inclination in [-90, -80, -30, -1, 0, 1, 30, 80, 90]:
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.00001)
         categories = get_categories_maps(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
