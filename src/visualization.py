@@ -11,12 +11,16 @@ import generate_data
 import numpy as np
 
 
-def plot_map(category_map, liquid, gas, pipe, x_ticks=None, y_ticks=None):
+def plot_map(category_map, liquid, gas, pipe, u_gs_map, u_ls_map):
     """
     plot a map which contains the representation of a categorical map
     """
     # initialize the figure
     fig, axs = plt.subplots(figsize=(7, 7))
+
+    # get the axis values
+    x_ticks = u_gs_map[0, :]
+    y_ticks = u_ls_map[:, 0]
 
     # get alpha values
     edges = generate_data.detect_edges(category_map)
