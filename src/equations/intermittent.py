@@ -3,10 +3,11 @@ the functions that are used to calculate the conditions for flow to be considere
 intermittent flow
 """
 import numpy as np
-from . import dispersed_bubbles
+
 from general import friction_factor
 import general
 import fluids
+from . import dispersed_bubbles
 
 
 def liquid_slug_gas_holdup(u_gs, u_ls, liquid, gas, pipe):

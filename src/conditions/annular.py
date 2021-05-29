@@ -27,7 +27,9 @@ def liquid_stability(u_gs, u_ls, liquid, gas, pipe):
     )
 
     # get rid of nonsensical values
-    liquid_holdup[(liquid_holdup < 0) | (liquid_holdup > 1)]
+    liquid_holdup[liquid_holdup < 0] = 0
+    liquid_holdup[liquid_holdup > 1] = 1
+
     # calculate the condition
     rhs = equations.annular.equation16_barnea1987(liquid_holdup, x_sqrd)
 

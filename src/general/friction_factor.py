@@ -1,7 +1,7 @@
-""" Provides various functions for calculating the Darcy friction 
+""" Provides various functions for calculating the Darcy friction
 factor based on Colebrook-White approximations.
 
-adapted from 
+adapted from
 https://github.com/IMEConsultants/colebrook/blob/master/colebrook/colebrook.py
  to be compatible with numpy arrays. Under GNU 3 License
 """
@@ -170,24 +170,25 @@ def bkc(reynolds, roughness):
 
 
 if __name__ == "__main__":
-    reynolds = np.random.rand() * 5000
-    roughness = np.random.rand() * 0.05
-    print(reynolds, roughness)
+    reynolds_num = np.random.rand() * 5000
+    rel_rough = np.random.rand() * 0.05
+    print(reynolds_num, rel_rough)
     table_format = "|{:<15} | {:<7}|"
     fric_headers = ["METHOD", "VALUE"]
 
     factors = []
-    factors.append(["turb_swamee", turb_swamee(reynolds, roughness)])
-    factors.append(["bnt", bnt(reynolds, roughness)])
-    factors.append(["fng", fang(reynolds, roughness)])
-    factors.append(["niazkar", niazkar(reynolds, roughness)])
-    factors.append(["churchill", churchill(reynolds, roughness)])
-    factors.append(["nzkrchr", niazkar_and_churchill(reynolds, roughness)])
-    factors.append(["ak", ak(reynolds, roughness)])
-    factors.append(["bkc", bkc(reynolds, roughness)])
-    factors.append(["ept", ept(reynolds, roughness)])
+    factors.append(["turb_swamee", turb_swamee(reynolds_num, rel_rough)])
+    factors.append(["bnt", bnt(reynolds_num, rel_rough)])
+    factors.append(["fng", fang(reynolds_num, rel_rough)])
+    factors.append(["niazkar", niazkar(reynolds_num, rel_rough)])
+    factors.append(["churchill", churchill(reynolds_num, rel_rough)])
+    factors.append(["nzkrchr", niazkar_and_churchill(reynolds_num, rel_rough)])
+    factors.append(["ak", ak(reynolds_num, rel_rough)])
+    factors.append(["bkc", bkc(reynolds_num, rel_rough)])
+    factors.append(["ept", ept(reynolds_num, rel_rough)])
     print(
-        "Ensure values are within range of applicability for equations (specifically around transition and laminar region)!"
+        "Ensure values are within range of applicability for"
+        + " equations (specifically around transition and laminar region)!"
     )
     print(table_format.format(*fric_headers))
     print("---------------------------")

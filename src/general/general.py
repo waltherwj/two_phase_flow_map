@@ -1,9 +1,10 @@
 """functions which are too broad to fit in any other category
 and are used by several different other modules
 """
-from . import non_dimensional, friction_factor
 import numpy as np
 from scipy.optimize import newton
+
+from . import non_dimensional, friction_factor
 
 
 def fluid_area_ratio(velocity, fluid, pipe):

@@ -1,7 +1,8 @@
 """ calculate non dimensional numbers
 """
 import numpy as np
-from . import friction_factor, general
+
+from . import general
 
 
 def reynolds(velocity, fluid, pipe):

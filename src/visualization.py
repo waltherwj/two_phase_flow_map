@@ -2,14 +2,15 @@
 This module handles the functions that are used to visualize the
 maps and other important features
 """
-from config import Config
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.patches import Patch
-import general
 from scipy.ndimage import gaussian_filter
+
+from config import Config
+import general
 import generate_data
-import numpy as np
 
 
 def plot_map(category_map, liquid, gas, pipe, u_gs_map, u_ls_map):

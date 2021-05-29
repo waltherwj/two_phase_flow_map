@@ -1,5 +1,5 @@
 """
-Configuration file. Contains the class that is 
+Configuration file. Contains the class that is
 used for configuration and the configuration variables
 """
 from matplotlib import cm

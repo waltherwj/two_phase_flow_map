@@ -1,9 +1,10 @@
-""" 
-This module dictates how all the maps interact and which ones 
+"""
+This module dictates how all the maps interact and which ones
 are valid at a certain map location
 """
-from config import Config
 import numpy as np
+
+from config import Config
 from conditions import annular, bubbly, dispersed_bubbles, stratified, intermittent
 
 
