@@ -183,7 +183,6 @@ if __name__ == "__main__":
     factors.append(["niazkar", niazkar(reynolds, roughness)])
     factors.append(["churchill", churchill(reynolds, roughness)])
     factors.append(["nzkrchr", niazkar_and_churchill(reynolds, roughness)])
-    factors.append(["cfng", laminar_and_fang(reynolds, roughness)])
     factors.append(["ak", ak(reynolds, roughness)])
     factors.append(["bkc", bkc(reynolds, roughness)])
     factors.append(["ept", ept(reynolds, roughness)])

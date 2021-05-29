@@ -4,6 +4,7 @@ maps and other important features
 """
 from config import Config
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 from matplotlib.patches import Patch
 import general
 from scipy.ndimage import gaussian_filter
@@ -52,9 +53,25 @@ def plot_map(category_map, liquid, gas, pipe, u_gs_map, u_ls_map):
         alpha=alphas,
     )
 
-    axs.plot(u_gs, u_ls, marker="x", color="black", mew=2, markersize=10, label="case")
+    # the current value marker
+    axs.plot(u_gs, u_ls, marker="x", color="black", mew=2, markersize=10)
+    legend_elements.append(
+        mlines.Line2D(
+            [],
+            [],
+            color="black",
+            marker="x",
+            mew=2,
+            linestyle="None",
+            markersize=10,
+            label="This scenario",
+        )
+    )
+
+    # plot the legend
     axs.legend(handles=legend_elements, bbox_to_anchor=(1.04, 1), loc="upper left")
 
+    # set the ticks, title and scale
     axs.set_xticks(x_ticks)
     axs.set_yticks(y_ticks)
     axs.set_xscale("log")

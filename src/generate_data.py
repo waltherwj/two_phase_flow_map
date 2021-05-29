@@ -7,7 +7,6 @@ and the velocity maps
 import numpy as np
 from config import Config
 from scipy import interpolate
-from scipy.signal import convolve
 from scipy.ndimage import gaussian_filter
 
 
