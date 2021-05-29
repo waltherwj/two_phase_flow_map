@@ -55,12 +55,11 @@ This will generate the following map
 
 I cannot and don't guarantee the accuracy of these maps, but feel free to use them as base for your own modelling efforts. 
 
-If you like it or it helped you, please give credit, and you can let me know too. I'd be happy to know that this helped someone. If you need any help or orientation, let me know as well.
+If you like this code or it helped you, please give credit, and you can let me know too. I'd be happy to know that this helped someone. If you need any help or orientation, let me know as well.
 
 If you'd like to contribute, feel free to reach out or create a pull request.
 
 # WIP
 
-- clean up and lint code
-- create a front end and set of instructions on how to use
+- clean up and delint code
 
