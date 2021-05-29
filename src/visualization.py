@@ -71,11 +71,13 @@ def plot_map(category_map, liquid, gas, pipe, u_gs_map, u_ls_map):
     # plot the legend
     axs.legend(handles=legend_elements, bbox_to_anchor=(1.04, 1), loc="upper left")
 
-    # set the ticks, title and scale
+    # set the ticks, label, title and scale
     axs.set_xticks(x_ticks)
     axs.set_yticks(y_ticks)
     axs.set_xscale("log")
     axs.set_yscale("log")
+    axs.set_xlabel(r"$U_{Gs}$")
+    axs.set_ylabel(r"$U_{Ls}$")
     axs.set_title(f"Inclination = ${pipe.inclination*180/np.pi:.1f}{{\degree}}$")
     plt.tight_layout()
 
