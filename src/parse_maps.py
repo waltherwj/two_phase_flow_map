@@ -108,15 +108,6 @@ def parse_churn(u_gs, u_ls, liquid, gas, pipe):
     return elongated_bubble_map
 
 
-def parse_unphysical(u_gs, u_ls, liquid, gas, pipe):
-    """
-    parse the unphysical condition maps
-    """
-    impossible_holdup_map = unphysical.total_holdup(u_gs, u_ls, liquid, gas, pipe)
-
-    return impossible_holdup_map
-
-
 def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     """
     calls the other parsing functions to combine all parses into one
@@ -160,4 +151,4 @@ def get_categories_maps(u_gs, u_ls, liquid, gas, pipe):
     # churn flow
     category_map[churn_map & np.isnan(category_map)] = Config.CATEGORIES["churn"]
 
-    return category_map, overlay_map
+    return category_map

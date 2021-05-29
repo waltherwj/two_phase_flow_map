@@ -10,7 +10,7 @@ from scipy.ndimage import gaussian_filter
 import generate_data
 
 
-def plot_map(category_map, overlay_map, liquid, gas, pipe, x_ticks=None, y_ticks=None):
+def plot_map(category_map, liquid, gas, pipe, x_ticks=None, y_ticks=None):
     """
     plot a map which contains the representation of a categorical map
     """
@@ -79,13 +79,12 @@ if __name__ == "__main__":
 
     for inclination in [-90]:  # , -80, -30, -1, 0, 1, 30, 85, 90]:
         pipe_temp = Pipe(diameter=5.1e-2, inclination=inclination, roughness=0.00001)
-        categories, overlays = get_categories_maps(
+        categories = get_categories_maps(
             ugs_temp, uls_temp, liq_temp, gas_temp, pipe_temp
         )
 
         fig_temp, ax = plot_map(
             categories,
-            overlays,
             liq_temp,
             gas_temp,
             pipe_temp,
